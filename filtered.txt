@@ -1,6 +1,6 @@
 [
   {
-    "remarks": "🏴‍☠️ XX HYS2 | Unknown ISP",
+    "remarks": "🏴‍☠️ XX HYS2",
     "log": {
       "loglevel": "warning"
     },
@@ -192,7 +192,7 @@
     ]
   },
   {
-    "remarks": "🏴‍☠️ XX HYS2 #2 | Unknown ISP",
+    "remarks": "🏴‍☠️ XX HYS2 #2",
     "log": {
       "loglevel": "warning"
     },
@@ -397,7 +397,7 @@
         }
       ]
     },
-    "remarks": "🇵🇱 PL VLESS | Ivanov Vitaliy Serge...",
+    "remarks": "🇵🇱 PL VLESS",
     "log": {
       "loglevel": "warning"
     },
@@ -598,7 +598,7 @@
         }
       ]
     },
-    "remarks": "🇷🇺 RU VLESS | Khachatryan Armen Ma...",
+    "remarks": "🇷🇺 RU VLESS",
     "log": {
       "loglevel": "warning"
     },
