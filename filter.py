@@ -3,16 +3,16 @@ import re
 import os
 import json
 import requests
-from urllib.parse import unquote, unquote_plus
+from urllib.parse import unquote_plus
 
 # === НАСТРОЙКИ ===
 SOURCE_URL = os.environ.get("SOURCE_URL")
 if not SOURCE_URL:
     raise ValueError("Не задана переменная окружения SOURCE_URL")
 
-FILTER_WORD = "poland"
-OUTPUT_FILE = "filtered.txt"
-HEADERS = {"User-Agent": "HAPP/1.0"}
+FILTER_WORD = "poland"                # Слово для поиска в названии
+OUTPUT_FILE = "filtered.txt"          # Имя файла для сохранения
+HEADERS = {"User-Agent": "HAPP/1.0"}  # Заголовки (можно добавить HWID при необходимости)
 # =================
 
 def fetch_raw_sub(url: str) -> str:
@@ -33,30 +33,22 @@ def main():
     matched_json_items = []
     matched_uris = []
 
-    # 1. Проверяем, является ли ответ JSON-массивом (как в вашем логе)
+    # 1. Проверяем, является ли ответ JSON-массивом (формат Xray)
     if raw.startswith("[") and raw.endswith("]"):
         print("  [DEBUG] Формат подписки: JSON массив (Xray)")
         try:
             data = json.loads(raw)
             for item in data:
                 remarks = item.get("remarks", "")
+                # Ищем слово "poland" в названии (без учета регистра)
                 if FILTER_WORD.lower() in remarks.lower():
-                    # Проверяем, есть ли среди outbounds протокол vless (если нужно)
-                    outbounds = item.get("outbounds", [])
-                    is_vless = any(ob.get("protocol") == "vless" for ob in outbounds)
-                    
-                    if is_vless:
-                        print(f"  [DEBUG] Найден VLESS: {remarks}")
-                        matched_json_items.append(item)
-                    else:
-                        # Если протокол не vless, но вы хотите брать всё подряд, 
-                        # просто раскомментируйте строку ниже и удалите проверку is_vless
-                        # matched_json_items.append(item)
-                        pass
+                    print(f"  [DEBUG] Найден сервер: {remarks}")
+                    # Добавляем ЛЮБОЙ сервер, независимо от протокола
+                    matched_json_items.append(item)
         except json.JSONDecodeError as e:
             print(f"  [DEBUG] Ошибка парсинга JSON: {e}")
 
-    # 2. Если это не JSON, используем старую логику (Base64 и URI)
+    # 2. Если это не JSON, используем логику для Base64 и сырых URI
     else:
         print("  [DEBUG] Формат подписки: Base64 или сырые URI")
         try:
@@ -80,7 +72,8 @@ def main():
                 if FILTER_WORD.lower() in tag.lower():
                     matched_uris.append(uri)
 
-    print(f"  Найдено совпадений: {len(matched_json_items) + len(matched_uris)}")
+    total_found = len(matched_json_items) + len(matched_uris)
+    print(f"  Найдено совпадений: {total_found}")
 
     # 3. Сохранение результата
     if matched_json_items:
