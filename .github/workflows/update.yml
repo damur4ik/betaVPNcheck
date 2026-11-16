@@ -1,8 +1,11 @@
 name: Update VPN Subscription
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Каждые 30 минут
-  workflow_dispatch:          # Позволяет запустить вручную
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write  # Явно даём права на запись
 
 jobs:
   update:
