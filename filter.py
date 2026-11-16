@@ -14,13 +14,12 @@ SOURCE_URL = os.environ.get("SOURCE_URL")
 if not SOURCE_URL:
     raise ValueError("Не задана переменная окружения SOURCE_URL")
 
-# Сюда можно добавлять страны в будущем: ["poland", "germany", "netherlands"]
 FILTER_WORDS = ["poland"] 
 OUTPUT_FILE = "filtered.txt"
 HEADERS = {"User-Agent": "HAPP/1.0"}
-TIMEOUT = 5            # Таймаут проверки (секунды)
-MAX_WORKERS = 5        # Количество параллельных проверок
-XRAY_PATH = "./xray_bin/xray"  # Путь к ядру Xray
+TIMEOUT = 5
+MAX_WORKERS = 5
+XRAY_PATH = "./xray_bin/xray"
 # =================
 
 def fetch_raw_sub(url: str) -> str:
@@ -30,7 +29,7 @@ def fetch_raw_sub(url: str) -> str:
     return resp.text.strip()
 
 def get_protocol(item):
-    """Определяет протокол сервера и возвращает красивое короткое имя."""
+    """Определяет протокол сервера."""
     try:
         for ob in item.get("outbounds", []):
             proto = ob.get("protocol", "").lower()
@@ -57,23 +56,19 @@ def get_server_ip(item):
     return None
 
 def get_country_info(ip):
-    """Определяет реальную страну и интернет-провайдера (ISP) по IP."""
+    """Определяет реальную страну по IP через ip-api.com."""
     if not ip:
-        return "XX", "Unknown ISP"
+        return "XX"
     try:
-        # Запрашиваем код страны и провайдера
-        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,countryCode,isp", timeout=5)
+        # Запрашиваем только код страны
+        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,countryCode", timeout=5)
         if r.status_code == 200:
             data = r.json()
             if data.get("status") == "success":
-                code = data.get("countryCode", "XX")
-                isp = data.get("isp", "Unknown ISP")
-                # Сокращаем слишком длинные названия провайдеров
-                isp = isp[:20] + "..." if len(isp) > 20 else isp
-                return code, isp
+                return data.get("countryCode", "XX")
     except Exception:
         pass
-    return "XX", "Unknown ISP"
+    return "XX"
 
 def country_code_to_flag(country_code):
     """Преобразует двухбуквенный код страны (PL) в эмодзи-флаг (🇵🇱)."""
@@ -87,23 +82,19 @@ def country_code_to_flag(country_code):
 def real_ping(item_json, index):
     """Запускает Xray локально и проверяет реальный пинг через прокси."""
     port = 10000 + index
-    # Формируем временный конфиг для локального запуска Xray
     temp_config = {
         "log": {"loglevel": "none"},
         "inbounds": [{"port": port, "listen": "127.0.0.1", "protocol": "socks"}],
         "outbounds": item_json.get("outbounds", [])
     }
     
-    # Создаем временный файл конфигурации
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump(temp_config, f)
         temp_path = f.name
 
     try:
-        # Запускаем ядро Xray
         proc = subprocess.Popen([XRAY_PATH, "run", "-c", temp_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
-        # Ждем, пока локальный порт откроется (макс 2 секунды)
         start_wait = time.time()
         while time.time() - start_wait < 2:
             try:
@@ -113,9 +104,8 @@ def real_ping(item_json, index):
                 time.sleep(0.1)
         else:
             proc.kill()
-            return None # Порт так и не открылся
+            return None
 
-        # Делаем реальный запрос через локальный прокси
         proxies = {
             'http': f'socks5h://127.0.0.1:{port}',
             'https': f'socks5h://127.0.0.1:{port}'
@@ -123,7 +113,6 @@ def real_ping(item_json, index):
         
         start_ping = time.time()
         try:
-            # Запрашиваем страницу генерации 204 (быстрый ответ от Cloudflare)
             r = requests.get("http://cp.cloudflare.com/generate_204", proxies=proxies, timeout=TIMEOUT)
             if r.status_code == 204:
                 ping_ms = int((time.time() - start_ping) * 1000)
@@ -135,7 +124,6 @@ def real_ping(item_json, index):
         proc.kill()
         return None
     finally:
-        # Удаляем временный конфиг
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
@@ -150,13 +138,11 @@ def main():
     print(f"[2/4] Поиск серверов по странам: {', '.join(FILTER_WORDS)}...")
     matched_items = []
     
-    # Парсим JSON подписку
     if raw.startswith("[") and raw.endswith("]"):
         try:
             data = json.loads(raw)
             for item in data:
                 remarks = item.get("remarks", "")
-                # Проверяем, есть ли в названии хотя бы одна из стран
                 for word in FILTER_WORDS:
                     if word.lower() in remarks.lower():
                         matched_items.append(item)
@@ -174,7 +160,6 @@ def main():
     print(f"[3/4] РЕАЛЬНАЯ проверка через Xray (таймаут {TIMEOUT} сек)...")
     alive_items = []
     
-    # Запускаем проверки параллельно
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         future_to_item = {
             executor.submit(real_ping, item, idx): item 
@@ -193,8 +178,6 @@ def main():
                 print(f"  ❌ НЕ РАБОТАЕТ: {remarks}")
 
     print(f"[4/4] Сортировка, переименование и сохранение...")
-    
-    # Сортируем по реальному пингу (от лучшего к худшему)
     alive_items.sort(key=lambda x: x[0])
     
     name_counts = {}
@@ -203,33 +186,29 @@ def main():
     print("\n--- ИТОГОВЫЙ СПИСОК В HAPP ---")
     for i, (ping, item) in enumerate(alive_items):
         ip = get_server_ip(item)
-        code, isp = get_country_info(ip)
+        code = get_country_info(ip)
         
         flag = country_code_to_flag(code)
         protocol = get_protocol(item)
         
-        # 1. Формируем базовое имя для подсчета дублей (Флаг, Код, Протокол)
+        # Формат: Флаг КодСтраны Протокол
         base_name = f"{flag} {code} {protocol}"
         
-        # 2. Считаем количество таких серверов
         if base_name not in name_counts:
             name_counts[base_name] = 1
         else:
             name_counts[base_name] += 1
             
-        # 3. Добавляем номер, если сервер повторяется, и провайдера в конце
         if name_counts[base_name] > 1:
-            new_remarks = f"{base_name} #{name_counts[base_name]} | {isp}"
+            new_remarks = f"{base_name} #{name_counts[base_name]}"
         else:
-            new_remarks = f"{base_name} | {isp}"
+            new_remarks = base_name
             
-        # Заменяем старое название на новое
         item["remarks"] = new_remarks
         alive_json.append(item)
         
-        print(f"  {i+1}. {new_remarks:<35} | {ping} ms")
+        print(f"  {i+1}. {new_remarks:<25} | {ping} ms")
 
-    # Сохраняем результат
     if alive_json:
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             json.dump(alive_json, f, ensure_ascii=False, indent=2)
