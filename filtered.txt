@@ -1,6 +1,6 @@
 [
   {
-    "remarks": "Poland | Hys2",
+    "remarks": "🏴‍☠️ XX HYS2 | Unknown ISP",
     "log": {
       "loglevel": "warning"
     },
@@ -192,7 +192,7 @@
     ]
   },
   {
-    "remarks": "Poland | Hys2 #2",
+    "remarks": "🏴‍☠️ XX HYS2 #2 | Unknown ISP",
     "log": {
       "loglevel": "warning"
     },
@@ -397,7 +397,7 @@
         }
       ]
     },
-    "remarks": "Poland | VLESS",
+    "remarks": "🇵🇱 PL VLESS | Ivanov Vitaliy Serge...",
     "log": {
       "loglevel": "warning"
     },
@@ -449,28 +449,31 @@
         "settings": {
           "vnext": [
             {
-              "address": "api.oblachnyservis.cc",
+              "address": "pl01.sonicservice.digital",
               "port": 443,
               "users": [
                 {
-                  "id": "41afb6cb-2642-4c49-bde9-330d116b55c3",
+                  "id": "0141608e-61f2-4d6a-be02-3f95cfa2e764",
                   "encryption": "none",
-                  "flow": "xtls-rprx-vision"
+                  "flow": ""
                 }
               ]
             }
           ]
         },
         "streamSettings": {
-          "network": "tcp",
+          "network": "grpc",
           "security": "reality",
           "realitySettings": {
-            "fingerprint": "firefox",
-            "serverName": "api.oblachnyservis.cc",
-            "publicKey": "r5WB5FnSCt4eeBC1FJMfkWHbzsMuabo0Rc6wuAhlZUs",
-            "shortId": "a8"
+            "fingerprint": "qq",
+            "serverName": "pl01.sonicservice.digital",
+            "publicKey": "DrEO_cjZp3lGe4HzR5A4rt6VYfu9geAPPWHkaKaFr1Q",
+            "shortId": ""
           },
-          "tcpSettings": {}
+          "grpcSettings": {
+            "serviceName": "api.v2.SyncService",
+            "multiMode": false
+          }
         }
       },
       {
@@ -595,7 +598,7 @@
         }
       ]
     },
-    "remarks": "Poland | VLESS #2",
+    "remarks": "🇷🇺 RU VLESS | Khachatryan Armen Ma...",
     "log": {
       "loglevel": "warning"
     },
@@ -647,31 +650,28 @@
         "settings": {
           "vnext": [
             {
-              "address": "pl01.sonicservice.digital",
+              "address": "api.oblachnyservis.cc",
               "port": 443,
               "users": [
                 {
-                  "id": "0141608e-61f2-4d6a-be02-3f95cfa2e764",
+                  "id": "41afb6cb-2642-4c49-bde9-330d116b55c3",
                   "encryption": "none",
-                  "flow": ""
+                  "flow": "xtls-rprx-vision"
                 }
               ]
             }
           ]
         },
         "streamSettings": {
-          "network": "grpc",
+          "network": "tcp",
           "security": "reality",
           "realitySettings": {
-            "fingerprint": "qq",
-            "serverName": "pl01.sonicservice.digital",
-            "publicKey": "DrEO_cjZp3lGe4HzR5A4rt6VYfu9geAPPWHkaKaFr1Q",
-            "shortId": ""
+            "fingerprint": "firefox",
+            "serverName": "api.oblachnyservis.cc",
+            "publicKey": "r5WB5FnSCt4eeBC1FJMfkWHbzsMuabo0Rc6wuAhlZUs",
+            "shortId": "a8"
           },
-          "grpcSettings": {
-            "serviceName": "api.v2.SyncService",
-            "multiMode": false
-          }
+          "tcpSettings": {}
         }
       },
       {
