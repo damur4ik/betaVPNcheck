@@ -20,6 +20,15 @@ HEADERS = {"User-Agent": "HAPP/1.0"}
 TIMEOUT = 5
 MAX_WORKERS = 5
 XRAY_PATH = "./xray_bin/xray"
+
+# Словарь для подстраховки, если API не ответит
+FALLBACK_COUNTRIES = {
+    "poland": ("PL", "🇵🇱"),
+    "germany": ("DE", "🇩🇪"),
+    "usa": ("US", "🇺🇸"),
+    "netherlands": ("NL", "🇳🇱"),
+    "russia": ("RU", "🇷🇺"),
+}
 # =================
 
 def fetch_raw_sub(url: str) -> str:
@@ -29,7 +38,6 @@ def fetch_raw_sub(url: str) -> str:
     return resp.text.strip()
 
 def get_protocol(item):
-    """Определяет протокол сервера."""
     try:
         for ob in item.get("outbounds", []):
             proto = ob.get("protocol", "").lower()
@@ -42,36 +50,50 @@ def get_protocol(item):
         pass
     return "VPN"
 
-def get_server_ip(item):
-    """Извлекает IP или домен сервера из конфига Xray."""
-    try:
-        for ob in item.get("outbounds", []):
-            settings = ob.get("settings", {})
-            if "vnext" in settings and settings["vnext"]:
-                return settings["vnext"][0].get("address")
-            if "servers" in settings and settings["servers"]:
-                return settings["servers"][0].get("address")
-    except Exception:
-        pass
+def find_address(obj):
+    """Рекурсивно ищет поле 'address' в любом месте JSON-конфига (работает для всех протоколов)."""
+    if isinstance(obj, dict):
+        if "address" in obj and isinstance(obj["address"], str) and len(obj["address"]) > 3:
+            return obj["address"]
+        for k, v in obj.items():
+            res = find_address(v)
+            if res: return res
+    elif isinstance(obj, list):
+        for item in obj:
+            res = find_address(item)
+            if res: return res
     return None
 
-def get_country_info(ip):
-    """Определяет реальную страну по IP через ip-api.com."""
+def get_country_info(ip, default_word):
+    """Определяет страну по IP. Если API не отвечает, берет страну из FILTER_WORDS."""
+    # Достаем дефолтные значения на случай сбоя API
+    default_code, default_flag = FALLBACK_COUNTRIES.get(default_word.lower(), ("XX", "🏴‍☠️"))
+    
     if not ip:
-        return "XX"
+        return default_code, default_flag
+
+    # Если это домен, переводим его в IP
+    try:
+        ip_addr = socket.gethostbyname(ip)
+    except Exception:
+        ip_addr = ip
+
     try:
         # Запрашиваем только код страны
-        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,countryCode", timeout=5)
+        r = requests.get(f"http://ip-api.com/json/{ip_addr}?fields=status,countryCode", timeout=5)
         if r.status_code == 200:
             data = r.json()
             if data.get("status") == "success":
-                return data.get("countryCode", "XX")
+                code = data.get("countryCode")
+                if code and code != "XX":
+                    return code, country_code_to_flag(code)
     except Exception:
         pass
-    return "XX"
+        
+    # Если API выдал ошибку (например, лимит 429), возвращаем дефолт
+    return default_code, default_flag
 
 def country_code_to_flag(country_code):
-    """Преобразует двухбуквенный код страны (PL) в эмодзи-флаг (🇵🇱)."""
     if not country_code or len(country_code) != 2 or country_code == "XX":
         return "🏴‍☠️"
     try:
@@ -80,7 +102,6 @@ def country_code_to_flag(country_code):
         return "🏴‍☠️"
 
 def real_ping(item_json, index):
-    """Запускает Xray локально и проверяет реальный пинг через прокси."""
     port = 10000 + index
     temp_config = {
         "log": {"loglevel": "none"},
@@ -145,6 +166,8 @@ def main():
                 remarks = item.get("remarks", "")
                 for word in FILTER_WORDS:
                     if word.lower() in remarks.lower():
+                        # Запоминаем, по какому слову нашли сервер (для страховки)
+                        item["_matched_word"] = word
                         matched_items.append(item)
                         break 
         except json.JSONDecodeError as e:
@@ -185,13 +208,16 @@ def main():
 
     print("\n--- ИТОГОВЫЙ СПИСОК В HAPP ---")
     for i, (ping, item) in enumerate(alive_items):
-        ip = get_server_ip(item)
-        code = get_country_info(ip)
+        matched_word = item.pop("_matched_word", "poland")
         
-        flag = country_code_to_flag(code)
+        # Ищем IP рекурсивно (теперь найдет и для Hysteria2)
+        ip = find_address(item.get("outbounds", []))
+        
+        # Определяем страну (с откатом на matched_word при ошибке API)
+        code, flag = get_country_info(ip, matched_word)
+        
         protocol = get_protocol(item)
         
-        # Формат: Флаг КодСтраны Протокол
         base_name = f"{flag} {code} {protocol}"
         
         if base_name not in name_counts:
@@ -207,7 +233,7 @@ def main():
         item["remarks"] = new_remarks
         alive_json.append(item)
         
-        print(f"  {i+1}. {new_remarks:<25} | {ping} ms")
+        print(f"  {i+1}. {new_remarks:<20} | {ping} ms (IP: {ip})")
 
     if alive_json:
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
