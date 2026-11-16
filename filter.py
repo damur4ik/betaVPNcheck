@@ -1,6 +1,7 @@
 import base64
 import re
 import os
+import json
 import requests
 from urllib.parse import unquote, unquote_plus
 
@@ -18,61 +19,7 @@ def fetch_raw_sub(url: str) -> str:
     print("  Скачивание подписки...")
     resp = requests.get(url, headers=HEADERS, timeout=30)
     resp.raise_for_status()
-    return resp.text
-
-def extract_uris(raw: str) -> list:
-    # --- ОТЛАДКА: смотрим, что пришло в подписке ---
-    print(f"  [DEBUG] Размер сырого ответа: {len(raw)} символов")
-    print(f"  [DEBUG] Первые 200 символов: {raw[:200]!r}")
-
-    # Пытаемся декодировать Base64 (с добавлением padding, если нужно)
-    try:
-        # Иногда Base64 приходит без символов '=' в конце. Добавляем их при необходимости.
-        missing_padding = len(raw) % 4
-        if missing_padding:
-            raw_padded = raw + '=' * (4 - missing_padding)
-        else:
-            raw_padded = raw
-            
-        decoded = base64.b64decode(raw_padded).decode("utf-8", errors="ignore")
-        if "://" in decoded:
-            print("  [DEBUG] Подписка была в Base64, успешно декодирована.")
-            raw = decoded
-        else:
-            print("  [DEBUG] Подписка не в Base64 (или декодирование не дало ссылок).")
-    except Exception as e:
-        print(f"  [DEBUG] Ошибка декодирования Base64: {e}")
-        pass
-
-    # --- ОТЛАДКА: показываем кусок текста после возможного декодирования ---
-    print(f"  [DEBUG] Текст после обработки (первые 300 символов): {raw[:300]!r}")
-
-    # Ищем все ссылки на прокси-протоколы
-    pattern = r'(?:vless|vmess|trojan|ss|ssr|hysteria2?)://[^\s<>"]+'
-    uris = re.findall(pattern, raw, flags=re.IGNORECASE)
-    
-    # --- ОТЛАДКА: выводим найденные ссылки (или их часть) ---
-    print(f"  [DEBUG] Найдено URI всего: {len(uris)}")
-    for i, uri in enumerate(uris[:5]):  # Показываем первые 5 для примера
-        print(f"    [DEBUG] URI {i+1}: {uri[:150]}...")
-    return uris
-
-def filter_by_name(uris: list, keyword: str) -> list:
-    matched = []
-    for uri in uris:
-        if "#" in uri:
-            # Декодируем тег. Иногда используется '+' как пробел, поэтому unquote_plus надёжнее.
-            raw_tag = uri.split("#", 1)[1]
-            tag = unquote_plus(raw_tag) 
-            
-            # --- ОТЛАДКА: смотрим на теги ---
-            # (Раскомментируйте строку ниже, если нужно увидеть все теги)
-            # print(f"    [DEBUG] Тег: {tag!r}")
-
-            if keyword.lower() in tag.lower():
-                print(f"  [DEBUG] Совпадение найдено: {tag!r}")
-                matched.append(uri)
-    return matched
+    return resp.text.strip()
 
 def main():
     print("[1/3] Загрузка подписки...")
@@ -82,26 +29,78 @@ def main():
         print(f"  Ошибка при скачивании: {e}")
         return
 
-    print("[2/3] Фильтрация по слову...")
-    all_uris = extract_uris(raw)
-    filtered = filter_by_name(all_uris, FILTER_WORD)
-    
-    print(f"  Всего найдено конфигов: {len(all_uris)}")
-    print(f"  Совпало по слову '{FILTER_WORD}': {len(filtered)}")
+    print("[2/3] Фильтрация...")
+    matched_json_items = []
+    matched_uris = []
 
-    if not filtered:
+    # 1. Проверяем, является ли ответ JSON-массивом (как в вашем логе)
+    if raw.startswith("[") and raw.endswith("]"):
+        print("  [DEBUG] Формат подписки: JSON массив (Xray)")
+        try:
+            data = json.loads(raw)
+            for item in data:
+                remarks = item.get("remarks", "")
+                if FILTER_WORD.lower() in remarks.lower():
+                    # Проверяем, есть ли среди outbounds протокол vless (если нужно)
+                    outbounds = item.get("outbounds", [])
+                    is_vless = any(ob.get("protocol") == "vless" for ob in outbounds)
+                    
+                    if is_vless:
+                        print(f"  [DEBUG] Найден VLESS: {remarks}")
+                        matched_json_items.append(item)
+                    else:
+                        # Если протокол не vless, но вы хотите брать всё подряд, 
+                        # просто раскомментируйте строку ниже и удалите проверку is_vless
+                        # matched_json_items.append(item)
+                        pass
+        except json.JSONDecodeError as e:
+            print(f"  [DEBUG] Ошибка парсинга JSON: {e}")
+
+    # 2. Если это не JSON, используем старую логику (Base64 и URI)
+    else:
+        print("  [DEBUG] Формат подписки: Base64 или сырые URI")
+        try:
+            missing_padding = len(raw) % 4
+            if missing_padding:
+                raw_padded = raw + '=' * (4 - missing_padding)
+            else:
+                raw_padded = raw
+            decoded = base64.b64decode(raw_padded).decode("utf-8", errors="ignore")
+            if "://" in decoded:
+                raw = decoded
+        except Exception:
+            pass
+
+        pattern = r'(?:vless|vmess|trojan|ss|ssr|hysteria2?)://[^\s<>"]+'
+        uris = re.findall(pattern, raw, flags=re.IGNORECASE)
+        
+        for uri in uris:
+            if "#" in uri:
+                tag = unquote_plus(uri.split("#", 1)[1])
+                if FILTER_WORD.lower() in tag.lower():
+                    matched_uris.append(uri)
+
+    print(f"  Найдено совпадений: {len(matched_json_items) + len(matched_uris)}")
+
+    # 3. Сохранение результата
+    if matched_json_items:
+        # Сохраняем как JSON (HAPP отлично понимает такой формат)
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+            json.dump(matched_json_items, f, ensure_ascii=False, indent=2)
+        print(f"[3/3] Готово. Сохранено JSON серверов: {len(matched_json_items)}")
+        
+    elif matched_uris:
+        # Сохраняем как Base64 (стандартный формат для ссылок)
+        content = "\n".join(matched_uris)
+        b64 = base64.b64encode(content.encode()).decode()
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+            f.write(b64)
+        print(f"[3/3] Готово. Сохранено URI серверов: {len(matched_uris)}")
+        
+    else:
         print("  Нет серверов с таким названием. Создаю пустой файл.")
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             f.write("")
-        return
-
-    print("[3/3] Сохранение результата...")
-    content = "\n".join(filtered)
-    b64 = base64.b64encode(content.encode()).decode()
-
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        f.write(b64)
-    print(f"  Готово. Сохранено серверов: {len(filtered)}")
 
 if __name__ == "__main__":
     main()
