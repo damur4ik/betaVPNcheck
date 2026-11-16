@@ -51,8 +51,11 @@ def main():
     filtered = filter_by_name(all_uris, FILTER_WORD)
     print(f"    Найдено совпадений: {len(filtered)}")
 
-    if not filtered:
-        print("    Нет серверов с таким названием. Файл не будет изменён.")
+        if not filtered:
+        print("    Нет серверов с таким названием. Создаю пустой файл.")
+        # Создаём пустой файл, чтобы git add не выдавал ошибку
+        with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+            f.write("")
         return
 
     # Сохраняем в формате base64 (стандартная подписка для HAPP)
