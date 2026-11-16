@@ -1,6 +1,6 @@
 [
   {
-    "remarks": "🇵🇱 🎮 ♾️ Poland | Hysteria2-2",
+    "remarks": "Poland | Hys2",
     "log": {
       "loglevel": "warning"
     },
@@ -192,7 +192,7 @@
     ]
   },
   {
-    "remarks": "🇵🇱 🎮 ♾️ Poland | Hysteria2-1",
+    "remarks": "Poland | Hys2 #2",
     "log": {
       "loglevel": "warning"
     },
@@ -397,7 +397,7 @@
         }
       ]
     },
-    "remarks": "🇵🇱 ♾️ Poland | TCP",
+    "remarks": "Poland | VLESS",
     "log": {
       "loglevel": "warning"
     },
@@ -449,11 +449,11 @@
         "settings": {
           "vnext": [
             {
-              "address": "194.113.34.254",
+              "address": "api.oblachnyservis.cc",
               "port": 443,
               "users": [
                 {
-                  "id": "b40907a9-5fbe-0068-a692-d97752b844bc",
+                  "id": "41afb6cb-2642-4c49-bde9-330d116b55c3",
                   "encryption": "none",
                   "flow": "xtls-rprx-vision"
                 }
@@ -465,10 +465,10 @@
           "network": "tcp",
           "security": "reality",
           "realitySettings": {
-            "fingerprint": "qq",
-            "serverName": "ws-api.oneme.ru",
-            "publicKey": "zTH3m7h5RrVagZ5WnwEEoJIpFhHFW0bcKKf68h7eMno",
-            "shortId": ""
+            "fingerprint": "firefox",
+            "serverName": "api.oblachnyservis.cc",
+            "publicKey": "r5WB5FnSCt4eeBC1FJMfkWHbzsMuabo0Rc6wuAhlZUs",
+            "shortId": "a8"
           },
           "tcpSettings": {}
         }
@@ -595,7 +595,7 @@
         }
       ]
     },
-    "remarks": "🇵🇱 🤖 ♾️ Poland | VLESS (AI)",
+    "remarks": "Poland | VLESS #2",
     "log": {
       "loglevel": "warning"
     },
@@ -647,28 +647,31 @@
         "settings": {
           "vnext": [
             {
-              "address": "129.101.107.31",
-              "port": 8443,
+              "address": "pl01.sonicservice.digital",
+              "port": 443,
               "users": [
                 {
-                  "id": "68a19895-7b8e-9660-8055-6aeab39515b2",
+                  "id": "0141608e-61f2-4d6a-be02-3f95cfa2e764",
                   "encryption": "none",
-                  "flow": "xtls-rprx-vision"
+                  "flow": ""
                 }
               ]
             }
           ]
         },
         "streamSettings": {
-          "network": "tcp",
+          "network": "grpc",
           "security": "reality",
           "realitySettings": {
-            "fingerprint": "firefox",
-            "serverName": "ya.ru",
-            "publicKey": "_bXTdS7SEP3arribAnbsdiC3VXRhKRVCsYI533sjsCM",
-            "shortId": "542a83882d6461d5"
+            "fingerprint": "qq",
+            "serverName": "pl01.sonicservice.digital",
+            "publicKey": "DrEO_cjZp3lGe4HzR5A4rt6VYfu9geAPPWHkaKaFr1Q",
+            "shortId": ""
           },
-          "tcpSettings": {}
+          "grpcSettings": {
+            "serviceName": "api.v2.SyncService",
+            "multiMode": false
+          }
         }
       },
       {
