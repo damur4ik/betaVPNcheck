@@ -1,6 +1,6 @@
 [
   {
-    "remarks": "🏴‍☠️ XX HYS2",
+    "remarks": "🇵🇱 PL HYS2",
     "log": {
       "loglevel": "warning"
     },
@@ -192,7 +192,7 @@
     ]
   },
   {
-    "remarks": "🏴‍☠️ XX HYS2 #2",
+    "remarks": "🇵🇱 PL HYS2 #2",
     "log": {
       "loglevel": "warning"
     },
@@ -397,7 +397,7 @@
         }
       ]
     },
-    "remarks": "🇵🇱 PL VLESS",
+    "remarks": "🇩🇪 DE VLESS",
     "log": {
       "loglevel": "warning"
     },
@@ -449,31 +449,28 @@
         "settings": {
           "vnext": [
             {
-              "address": "pl01.sonicservice.digital",
+              "address": "194.113.34.254",
               "port": 443,
               "users": [
                 {
-                  "id": "0141608e-61f2-4d6a-be02-3f95cfa2e764",
+                  "id": "b40907a9-5fbe-0068-a692-d97752b844bc",
                   "encryption": "none",
-                  "flow": ""
+                  "flow": "xtls-rprx-vision"
                 }
               ]
             }
           ]
         },
         "streamSettings": {
-          "network": "grpc",
+          "network": "tcp",
           "security": "reality",
           "realitySettings": {
             "fingerprint": "qq",
-            "serverName": "pl01.sonicservice.digital",
-            "publicKey": "DrEO_cjZp3lGe4HzR5A4rt6VYfu9geAPPWHkaKaFr1Q",
+            "serverName": "apple.com",
+            "publicKey": "zTH3m7h5RrVagZ5WnwEEoJIpFhHFW0bcKKf68h7eMno",
             "shortId": ""
           },
-          "grpcSettings": {
-            "serviceName": "api.v2.SyncService",
-            "multiMode": false
-          }
+          "tcpSettings": {}
         }
       },
       {
@@ -598,7 +595,7 @@
         }
       ]
     },
-    "remarks": "🇷🇺 RU VLESS",
+    "remarks": "🇵🇱 PL VLESS",
     "log": {
       "loglevel": "warning"
     },
@@ -650,28 +647,31 @@
         "settings": {
           "vnext": [
             {
-              "address": "api.oblachnyservis.cc",
+              "address": "pl01.sonicservice.digital",
               "port": 443,
               "users": [
                 {
-                  "id": "41afb6cb-2642-4c49-bde9-330d116b55c3",
+                  "id": "0141608e-61f2-4d6a-be02-3f95cfa2e764",
                   "encryption": "none",
-                  "flow": "xtls-rprx-vision"
+                  "flow": ""
                 }
               ]
             }
           ]
         },
         "streamSettings": {
-          "network": "tcp",
+          "network": "grpc",
           "security": "reality",
           "realitySettings": {
-            "fingerprint": "firefox",
-            "serverName": "api.oblachnyservis.cc",
-            "publicKey": "r5WB5FnSCt4eeBC1FJMfkWHbzsMuabo0Rc6wuAhlZUs",
-            "shortId": "a8"
+            "fingerprint": "qq",
+            "serverName": "pl01.sonicservice.digital",
+            "publicKey": "DrEO_cjZp3lGe4HzR5A4rt6VYfu9geAPPWHkaKaFr1Q",
+            "shortId": ""
           },
-          "tcpSettings": {}
+          "grpcSettings": {
+            "serviceName": "api.v2.SyncService",
+            "multiMode": false
+          }
         }
       },
       {
