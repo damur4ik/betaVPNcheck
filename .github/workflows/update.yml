@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write  # Явно даём права на запись
+  contents: write
 
 jobs:
   update:
@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Важно: получаем полную историю для корректного rebase
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -33,4 +35,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add filtered.txt
           git diff --staged --quiet || git commit -m "Auto-update subscription"
+          git pull --rebase origin main
           git push
