@@ -15,12 +15,13 @@ SOURCE_URL = os.environ.get("SOURCE_URL")
 if not SOURCE_URL:
     raise ValueError("Не задана переменная окружения SOURCE_URL")
 
-FILTER_WORD = "poland"
+# Сюда можно добавлять страны в будущем: ["poland", "germany", "netherlands"]
+FILTER_WORDS = ["poland"] 
 OUTPUT_FILE = "filtered.txt"
 HEADERS = {"User-Agent": "HAPP/1.0"}
-TIMEOUT = 5  # Время на проверку сервера (секунды)
-MAX_WORKERS = 5  # Количество одновременных проверок
-XRAY_PATH = "./xray_bin/xray"  # Путь к ядру Xray
+TIMEOUT = 5
+MAX_WORKERS = 5
+XRAY_PATH = "./xray_bin/xray"
 # =================
 
 def fetch_raw_sub(url: str) -> str:
@@ -29,10 +30,21 @@ def fetch_raw_sub(url: str) -> str:
     resp.raise_for_status()
     return resp.text.strip()
 
+def get_protocol(item):
+    """Определяет протокол сервера и возвращает красивое короткое имя."""
+    try:
+        for ob in item.get("outbounds", []):
+            proto = ob.get("protocol", "").lower()
+            if proto in ["vless", "vmess", "trojan", "shadowsocks"]:
+                return proto.upper()
+            elif proto in ["hysteria", "hysteria2"]:
+                return "Hys2"
+    except Exception:
+        pass
+    return "VPN"
+
 def real_ping(item_json, index):
-    """Запускает Xray, делает запрос через прокси и возвращает реальный пинг."""
     port = 10000 + index
-    # Создаем временный конфиг для Xray
     temp_config = {
         "log": {"loglevel": "none"},
         "inbounds": [{"port": port, "listen": "127.0.0.1", "protocol": "socks"}],
@@ -44,10 +56,8 @@ def real_ping(item_json, index):
         temp_path = f.name
 
     try:
-        # Запускаем Xray
         proc = subprocess.Popen([XRAY_PATH, "run", "-c", temp_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
-        # Ждем, пока локальный порт откроется (макс 2 сек)
         start_wait = time.time()
         while time.time() - start_wait < 2:
             try:
@@ -57,9 +67,8 @@ def real_ping(item_json, index):
                 time.sleep(0.1)
         else:
             proc.terminate()
-            return None  # Xray не запустился
+            return None
 
-        # Делаем реальный запрос через прокси
         proxies = {
             'http': f'socks5h://127.0.0.1:{port}',
             'https': f'socks5h://127.0.0.1:{port}'
@@ -67,7 +76,6 @@ def real_ping(item_json, index):
         
         start_ping = time.time()
         try:
-            # Запрашиваем страницу генерации 204 (быстрый ответ)
             r = requests.get("http://cp.cloudflare.com/generate_204", proxies=proxies, timeout=TIMEOUT)
             if r.status_code == 204:
                 ping_ms = int((time.time() - start_ping) * 1000)
@@ -89,7 +97,7 @@ def main():
         print(f"  Ошибка при скачивании: {e}")
         return
 
-    print(f"[2/4] Поиск серверов по слову '{FILTER_WORD}'...")
+    print(f"[2/4] Поиск серверов по странам: {', '.join(FILTER_WORDS)}...")
     matched_items = []
     
     if raw.startswith("[") and raw.endswith("]"):
@@ -98,22 +106,26 @@ def main():
             data = json.loads(raw)
             for item in data:
                 remarks = item.get("remarks", "")
-                if FILTER_WORD.lower() in remarks.lower():
-                    matched_items.append(item)
+                # Проверяем, есть ли в названии хотя бы одна из стран
+                for word in FILTER_WORDS:
+                    if word.lower() in remarks.lower():
+                        # Запоминаем, какая именно страна совпала (для красивого имени)
+                        item["_matched_country"] = word.capitalize()
+                        matched_items.append(item)
+                        break # Если нашли совпадение, переходим к следующему серверу
         except json.JSONDecodeError:
             pass
 
     print(f"  Найдено по названию: {len(matched_items)}")
     if not matched_items:
-        print("  Нет серверов с таким названием. Создаю пустой файл.")
+        print("  Нет серверов с такими названиями. Создаю пустой файл.")
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             f.write("")
         return
 
     print(f"[3/4] РЕАЛЬНАЯ проверка через Xray (таймаут {TIMEOUT} сек)...")
-    alive_items = [] # (ping_ms, item_json, remarks)
+    alive_items = []
     
-    # Запускаем проверки параллельно
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         future_to_item = {
             executor.submit(real_ping, item, idx): item 
@@ -127,19 +139,42 @@ def main():
             
             if ping is not None:
                 print(f"  ✅ РАБОТАЕТ (пинг: {ping} ms): {remarks}")
-                alive_items.append((ping, item, remarks))
+                alive_items.append((ping, item))
             else:
                 print(f"  ❌ НЕ РАБОТАЕТ: {remarks}")
 
-    print(f"[4/4] Сортировка и сохранение...")
-    # Сортируем по реальному пингу
+    print(f"[4/4] Сортировка, переименование и сохранение...")
+    # 1. Сортируем по пингу (от лучшего к худшему)
     alive_items.sort(key=lambda x: x[0])
     
-    print("\n--- РЕЙТИНГ САМЫХ БЫСТРЫХ РАБОЧИХ СЕРВЕРОВ ---")
-    for i, (ping, item, remarks) in enumerate(alive_items):
-        print(f"  {i+1}. {remarks[:35]} | {ping} ms")
+    # 2. Переименовываем и считаем дубликаты
+    name_counts = {}
+    alive_json = []
 
-    alive_json = [item for ping, item, remarks in alive_items]
+    print("\n--- ИТОГОВЫЙ СПИСОК ---")
+    for i, (ping, item) in enumerate(alive_items):
+        country = item.pop("_matched_country", "Unknown") # Достаем страну и удаляем служебное поле
+        protocol = get_protocol(item)
+        
+        base_name = f"{country} | {protocol}"
+        
+        # Считаем, сколько раз встречается такое имя
+        if base_name not in name_counts:
+            name_counts[base_name] = 1
+        else:
+            name_counts[base_name] += 1
+            
+        # Если сервер с таким именем уже есть, добавляем номер
+        if name_counts[base_name] > 1:
+            new_remarks = f"{base_name} #{name_counts[base_name]}"
+        else:
+            new_remarks = base_name
+            
+        # Заменяем старое название на новое
+        item["remarks"] = new_remarks
+        alive_json.append(item)
+        
+        print(f"  {i+1}. {new_remarks:<25} | {ping} ms")
 
     if alive_json:
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
