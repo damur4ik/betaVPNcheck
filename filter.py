@@ -7,7 +7,6 @@ import requests
 import time
 import subprocess
 import tempfile
-from urllib.parse import unquote_plus, urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # === НАСТРОЙКИ ===
@@ -19,9 +18,9 @@ if not SOURCE_URL:
 FILTER_WORDS = ["poland"] 
 OUTPUT_FILE = "filtered.txt"
 HEADERS = {"User-Agent": "HAPP/1.0"}
-TIMEOUT = 5
-MAX_WORKERS = 5
-XRAY_PATH = "./xray_bin/xray"
+TIMEOUT = 5            # Таймаут проверки (секунды)
+MAX_WORKERS = 5        # Количество параллельных проверок
+XRAY_PATH = "./xray_bin/xray"  # Путь к ядру Xray
 # =================
 
 def fetch_raw_sub(url: str) -> str:
@@ -35,29 +34,76 @@ def get_protocol(item):
     try:
         for ob in item.get("outbounds", []):
             proto = ob.get("protocol", "").lower()
-            if proto in ["vless", "vmess", "trojan", "shadowsocks"]:
-                return proto.upper()
-            elif proto in ["hysteria", "hysteria2"]:
-                return "Hys2"
+            if proto == "vless": return "VLESS"
+            if proto == "vmess": return "VMESS"
+            if proto == "trojan": return "TROJAN"
+            if proto == "shadowsocks": return "SS"
+            if proto in ["hysteria", "hysteria2"]: return "HYS2"
     except Exception:
         pass
     return "VPN"
 
+def get_server_ip(item):
+    """Извлекает IP или домен сервера из конфига Xray."""
+    try:
+        for ob in item.get("outbounds", []):
+            settings = ob.get("settings", {})
+            if "vnext" in settings and settings["vnext"]:
+                return settings["vnext"][0].get("address")
+            if "servers" in settings and settings["servers"]:
+                return settings["servers"][0].get("address")
+    except Exception:
+        pass
+    return None
+
+def get_country_info(ip):
+    """Определяет реальную страну и интернет-провайдера (ISP) по IP."""
+    if not ip:
+        return "XX", "Unknown ISP"
+    try:
+        # Запрашиваем код страны и провайдера
+        r = requests.get(f"http://ip-api.com/json/{ip}?fields=status,countryCode,isp", timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            if data.get("status") == "success":
+                code = data.get("countryCode", "XX")
+                isp = data.get("isp", "Unknown ISP")
+                # Сокращаем слишком длинные названия провайдеров
+                isp = isp[:20] + "..." if len(isp) > 20 else isp
+                return code, isp
+    except Exception:
+        pass
+    return "XX", "Unknown ISP"
+
+def country_code_to_flag(country_code):
+    """Преобразует двухбуквенный код страны (PL) в эмодзи-флаг (🇵🇱)."""
+    if not country_code or len(country_code) != 2 or country_code == "XX":
+        return "🏴‍☠️"
+    try:
+        return chr(ord(country_code[0].upper()) + 127397) + chr(ord(country_code[1].upper()) + 127397)
+    except Exception:
+        return "🏴‍☠️"
+
 def real_ping(item_json, index):
+    """Запускает Xray локально и проверяет реальный пинг через прокси."""
     port = 10000 + index
+    # Формируем временный конфиг для локального запуска Xray
     temp_config = {
         "log": {"loglevel": "none"},
         "inbounds": [{"port": port, "listen": "127.0.0.1", "protocol": "socks"}],
         "outbounds": item_json.get("outbounds", [])
     }
     
+    # Создаем временный файл конфигурации
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump(temp_config, f)
         temp_path = f.name
 
     try:
+        # Запускаем ядро Xray
         proc = subprocess.Popen([XRAY_PATH, "run", "-c", temp_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
+        # Ждем, пока локальный порт откроется (макс 2 секунды)
         start_wait = time.time()
         while time.time() - start_wait < 2:
             try:
@@ -66,9 +112,10 @@ def real_ping(item_json, index):
             except (socket.timeout, ConnectionRefusedError):
                 time.sleep(0.1)
         else:
-            proc.terminate()
-            return None
+            proc.kill()
+            return None # Порт так и не открылся
 
+        # Делаем реальный запрос через локальный прокси
         proxies = {
             'http': f'socks5h://127.0.0.1:{port}',
             'https': f'socks5h://127.0.0.1:{port}'
@@ -76,18 +123,21 @@ def real_ping(item_json, index):
         
         start_ping = time.time()
         try:
+            # Запрашиваем страницу генерации 204 (быстрый ответ от Cloudflare)
             r = requests.get("http://cp.cloudflare.com/generate_204", proxies=proxies, timeout=TIMEOUT)
             if r.status_code == 204:
                 ping_ms = int((time.time() - start_ping) * 1000)
-                proc.terminate()
+                proc.kill()
                 return ping_ms
         except Exception:
             pass
             
-        proc.terminate()
+        proc.kill()
         return None
     finally:
-        os.remove(temp_path)
+        # Удаляем временный конфиг
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 def main():
     print("[1/4] Загрузка подписки...")
@@ -100,8 +150,8 @@ def main():
     print(f"[2/4] Поиск серверов по странам: {', '.join(FILTER_WORDS)}...")
     matched_items = []
     
+    # Парсим JSON подписку
     if raw.startswith("[") and raw.endswith("]"):
-        print("  [DEBUG] Формат подписки: JSON массив (Xray)")
         try:
             data = json.loads(raw)
             for item in data:
@@ -109,12 +159,10 @@ def main():
                 # Проверяем, есть ли в названии хотя бы одна из стран
                 for word in FILTER_WORDS:
                     if word.lower() in remarks.lower():
-                        # Запоминаем, какая именно страна совпала (для красивого имени)
-                        item["_matched_country"] = word.capitalize()
                         matched_items.append(item)
-                        break # Если нашли совпадение, переходим к следующему серверу
-        except json.JSONDecodeError:
-            pass
+                        break 
+        except json.JSONDecodeError as e:
+            print(f"  [DEBUG] Ошибка парсинга JSON: {e}")
 
     print(f"  Найдено по названию: {len(matched_items)}")
     if not matched_items:
@@ -126,6 +174,7 @@ def main():
     print(f"[3/4] РЕАЛЬНАЯ проверка через Xray (таймаут {TIMEOUT} сек)...")
     alive_items = []
     
+    # Запускаем проверки параллельно
     with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         future_to_item = {
             executor.submit(real_ping, item, idx): item 
@@ -144,38 +193,43 @@ def main():
                 print(f"  ❌ НЕ РАБОТАЕТ: {remarks}")
 
     print(f"[4/4] Сортировка, переименование и сохранение...")
-    # 1. Сортируем по пингу (от лучшего к худшему)
+    
+    # Сортируем по реальному пингу (от лучшего к худшему)
     alive_items.sort(key=lambda x: x[0])
     
-    # 2. Переименовываем и считаем дубликаты
     name_counts = {}
     alive_json = []
 
-    print("\n--- ИТОГОВЫЙ СПИСОК ---")
+    print("\n--- ИТОГОВЫЙ СПИСОК В HAPP ---")
     for i, (ping, item) in enumerate(alive_items):
-        country = item.pop("_matched_country", "Unknown") # Достаем страну и удаляем служебное поле
+        ip = get_server_ip(item)
+        code, isp = get_country_info(ip)
+        
+        flag = country_code_to_flag(code)
         protocol = get_protocol(item)
         
-        base_name = f"{country} | {protocol}"
+        # 1. Формируем базовое имя для подсчета дублей (Флаг, Код, Протокол)
+        base_name = f"{flag} {code} {protocol}"
         
-        # Считаем, сколько раз встречается такое имя
+        # 2. Считаем количество таких серверов
         if base_name not in name_counts:
             name_counts[base_name] = 1
         else:
             name_counts[base_name] += 1
             
-        # Если сервер с таким именем уже есть, добавляем номер
+        # 3. Добавляем номер, если сервер повторяется, и провайдера в конце
         if name_counts[base_name] > 1:
-            new_remarks = f"{base_name} #{name_counts[base_name]}"
+            new_remarks = f"{base_name} #{name_counts[base_name]} | {isp}"
         else:
-            new_remarks = base_name
+            new_remarks = f"{base_name} | {isp}"
             
         # Заменяем старое название на новое
         item["remarks"] = new_remarks
         alive_json.append(item)
         
-        print(f"  {i+1}. {new_remarks:<25} | {ping} ms")
+        print(f"  {i+1}. {new_remarks:<35} | {ping} ms")
 
+    # Сохраняем результат
     if alive_json:
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             json.dump(alive_json, f, ensure_ascii=False, indent=2)
