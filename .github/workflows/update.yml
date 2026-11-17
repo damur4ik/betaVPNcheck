@@ -1,8 +1,8 @@
 name: Update VPN Subscription
 on:
   schedule:
-    - cron: '7,37 * * * *'   # Запуск в 7 и 37 минут каждого часа
-  workflow_dispatch:
+    - cron: '7,37 * * * *'   # Запуск в 7 и 37 минут каждого часа (снижает задержки GitHub)
+  workflow_dispatch:         # Ручной запуск
 
 permissions:
   contents: write
@@ -21,9 +21,12 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install dependencies and Xray
         run: |
-          pip install requests
+          pip install requests requests[socks]
+          wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+          unzip -q Xray-linux-64.zip -d xray_bin
+          chmod +x xray_bin/xray
 
       - name: Run filter script
         env:
