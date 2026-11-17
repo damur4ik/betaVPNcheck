@@ -18,7 +18,7 @@ if not SOURCE_URL:
 FILTER_WORDS = [
     "poland", "germany", "finland", "sweden", "lithuania", 
     "norway", "estonia", "belarus", "kazakhstan", "uzbekistan", 
-    "israel", "azerbaijan", "ukraine"
+    "israel", "azerbaijan", "ukraine", "russia"
 ]
 
 OUTPUT_FILE = "filtered.txt"
@@ -29,16 +29,16 @@ XRAY_PATH = "./xray_bin/xray"
 
 # Приоритетные страны (Hys2 из них идет на самый верх)
 TIER1_COUNTRIES = ["PL", "FI", "DE", "SE", "LT", "NO", "EE"]
-# Страны, которые всегда отправляются в самый низ
+# Страны, которые всегда отправляются в самый низ (как вы просили, включая UZ)
 TIER3_COUNTRIES = ["BY", "KZ", "UZ", "IL", "AZ", "UA"]
 
-# Словарь для страховки, если API геолокации не ответит
+# Словарь для страховки, если вдруг IP скрыт и API вообще ничего не ответил
 FALLBACK_COUNTRIES = {
     "poland": ("PL", "🇵🇱"), "germany": ("DE", "🇩🇪"), "finland": ("FI", "🇫🇮"),
     "sweden": ("SE", "🇸🇪"), "lithuania": ("LT", "🇱🇹"), "norway": ("NO", "🇳🇴"),
     "estonia": ("EE", "🇪🇪"), "belarus": ("BY", "🇧🇾"), "kazakhstan": ("KZ", "🇰🇿"),
     "uzbekistan": ("UZ", "🇺🇿"), "israel": ("IL", "🇮🇱"), "azerbaijan": ("AZ", "🇦🇿"),
-    "ukraine": ("UA", "🇺🇦"), "usa": ("US", "🇺🇸"), "russia": ("RU", "🇷🇺"),
+    "ukraine": ("UA", "🇺🇦"), "russia": ("RU", "🇷🇺"), "usa": ("US", "🇺🇸"),
 }
 # =================
 
@@ -49,7 +49,7 @@ def fetch_raw_sub(url: str) -> str:
     return resp.text.strip()
 
 def get_protocol_and_transport(item):
-    """Определяет протокол. Для VLESS вытаскивает транспорт (gRPC, WebSocket и т.д.)."""
+    """Определяет протокол и транспорт."""
     try:
         for ob in item.get("outbounds", []):
             proto = ob.get("protocol", "").lower()
@@ -70,51 +70,49 @@ def get_protocol_and_transport(item):
         pass
     return "VPN"
 
-def find_address(obj):
-    """Рекурсивно ищет поле 'address' в любом месте JSON-конфига."""
-    if isinstance(obj, dict):
-        if "address" in obj and isinstance(obj["address"], str) and len(obj["address"]) > 3:
-            return obj["address"]
-        for k, v in obj.items():
-            res = find_address(v)
-            if res: return res
-    elif isinstance(obj, list):
-        for item in obj:
-            res = find_address(item)
-            if res: return res
-    return None
-
-def get_country_info(ip, default_word):
-    """Определяет страну по IP. Если API не отвечает, берет страну из FILTER_WORDS."""
-    default_code, default_flag = FALLBACK_COUNTRIES.get(default_word.lower(), ("XX", "🏴‍☠️"))
-    
-    if not ip:
-        return default_code, default_flag
-
+def get_server_address(item):
+    """Строго ищет адрес именно в блоке прокси, чтобы не взять случайный IP из DNS."""
     try:
-        ip_addr = socket.gethostbyname(ip)
-    except Exception:
-        ip_addr = ip
-
-    try:
-        r = requests.get(f"http://ip-api.com/json/{ip_addr}?fields=status,countryCode", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            if data.get("status") == "success":
-                code = data.get("countryCode")
-                if code and code != "XX":
-                    return code, country_code_to_flag(code)
+        for ob in item.get("outbounds", []):
+            proto = ob.get("protocol", "").lower()
+            if proto in ["vless", "vmess", "trojan", "shadowsocks", "hysteria", "hysteria2"]:
+                settings = ob.get("settings", {})
+                if "vnext" in settings and settings["vnext"]:
+                    return settings["vnext"][0].get("address")
+                if "servers" in settings and settings["servers"]:
+                    return settings["servers"][0].get("address")
+                if "address" in settings:  # Для Hysteria
+                    return settings.get("address")
     except Exception:
         pass
-    return default_code, default_flag
+    return None
 
-def country_code_to_flag(country_code):
-    if not country_code or len(country_code) != 2 or country_code == "XX":
-        return "🏴‍☠️"
-    try:
-        return chr(ord(country_code[0].upper()) + 127397) + chr(ord(country_code[1].upper()) + 127397)
-    except Exception:
-        return "🏴‍☠️"
+def get_countries_batch(ips_list, matched_words_map):
+    """Массово определяет страны через Batch API (до 100 IP за раз)."""
+    ip_to_country = {}
+    
+    # Очищаем от пустых и дубликатов
+    unique_ips = list(set([ip for ip in ips_list if ip]))
+    
+    # Разбиваем на куски по 100 штук (лимит API)
+    for i in range(0, len(unique_ips), 100):
+        chunk = unique_ips[i:i+100]
+        payload = [{"query": ip, "fields": "query,status,countryCode"} for ip in chunk]
+        
+        try:
+            print(f"    Запрос геолокации для {len(chunk)} IP...")
+            r = requests.post("http://ip-api.com/batch", json=payload, timeout=10)
+            if r.status_code == 200:
+                data = r.json()
+                for res in data:
+                    if res.get("status") == "success" and res.get("countryCode"):
+                        ip_to_country[res["query"]] = res["countryCode"]
+            else:
+                print(f"    ⚠️ Ошибка API: {r.status_code}")
+        except Exception as e:
+            print(f"    ⚠️ Ошибка сети API: {e}")
+            
+    return ip_to_country
 
 def real_ping(item_json, index):
     port = 10000 + index
@@ -162,6 +160,14 @@ def real_ping(item_json, index):
     finally:
         if os.path.exists(temp_path):
             os.remove(temp_path)
+
+def country_code_to_flag(country_code):
+    if not country_code or len(country_code) != 2 or country_code == "XX":
+        return "🏴‍☠️"
+    try:
+        return chr(ord(country_code[0].upper()) + 127397) + chr(ord(country_code[1].upper()) + 127397)
+    except Exception:
+        return "🏴‍☠️"
 
 def main():
     print("[1/4] Загрузка подписки...")
@@ -213,41 +219,49 @@ def main():
             else:
                 print(f"  ❌ НЕ РАБОТАЕТ: {remarks}")
 
-    print(f"[4/4] Определение приоритетов, сортировка и переименование...")
+    print(f"[4/4] Геолокация, определение приоритетов и сохранение...")
+    
+    # 1. Собираем все IP-адреса
+    item_ips = []
+    for ping, item in alive_items:
+        addr = get_server_address(item)
+        ip = None
+        if addr:
+            try:
+                ip = socket.gethostbyname(addr) # Переводим домен в IP
+            except Exception:
+                ip = addr
+        item_ips.append(ip)
+
+    # 2. Делаем ОДИН массовый запрос к API (без лимитов)
+    ip_map = get_countries_batch(item_ips, {})
     
     processed_items = []
-    for ping, item in alive_items:
+    for i, (ping, item) in enumerate(alive_items):
         matched_word = item.pop("_matched_word", "poland")
-        ip = find_address(item.get("outbounds", []))
-        code, flag = get_country_info(ip, matched_word)
+        ip = item_ips[i]
+        
+        # Если IP нашелся в базе API - берем его. Если нет - берем страховку.
+        code = ip_map.get(ip)
+        if not code:
+            code, _ = FALLBACK_COUNTRIES.get(matched_word.lower(), ("XX", "🏴‍☠️"))
+            
+        flag = country_code_to_flag(code)
         transport = get_protocol_and_transport(item)
         
         # === ЛОГИКА ПРИОРИТЕТОВ ===
-        # 4 - Самый низ (Нежелательные страны)
-        # 3 - Обычные протоколы (TCP, gRPC, VMESS и т.д.)
-        # 2 - Hys2 из других стран
-        # 1 - Самый верх (Hys2 из списка TIER1_COUNTRIES)
-        
         if code in TIER3_COUNTRIES:
             priority = 4
         elif transport == "Hys2":
-            if code in TIER1_COUNTRIES:
-                priority = 1
-            else:
-                priority = 2
+            priority = 1 if code in TIER1_COUNTRIES else 2
         else:
             priority = 3
 
         processed_items.append({
-            "ping": ping,
-            "item": item,
-            "code": code,
-            "flag": flag,
-            "transport": transport,
-            "priority": priority
+            "ping": ping, "item": item, "code": code, 
+            "flag": flag, "transport": transport, "priority": priority
         })
 
-    # Сортируем сначала по приоритету (1 -> 2 -> 3 -> 4), затем по пингу (возрастание)
     processed_items.sort(key=lambda x: (x["priority"], x["ping"]))
     
     name_counts = {}
@@ -256,21 +270,16 @@ def main():
     print("\n--- ИТОГОВЫЙ СПИСОК В HAPP ---")
     for i, data in enumerate(processed_items):
         base_name = f"{data['flag']} {data['code']} {data['transport']}"
-        
         if base_name not in name_counts:
             name_counts[base_name] = 1
         else:
             name_counts[base_name] += 1
             
-        if name_counts[base_name] > 1:
-            new_remarks = f"{base_name} #{name_counts[base_name]}"
-        else:
-            new_remarks = base_name
-            
+        new_remarks = f"{base_name} #{name_counts[base_name]}" if name_counts[base_name] > 1 else base_name
         data["item"]["remarks"] = new_remarks
         alive_json.append(data["item"])
         
-        print(f"  [{data['priority']}] {i+1}. {new_remarks:<20} | {data['ping']} ms")
+        print(f"  [{data['priority']}] {new_remarks:<20} | {data['ping']} ms")
 
     if alive_json:
         with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
