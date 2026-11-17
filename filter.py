@@ -14,9 +14,7 @@ SOURCE_URL = os.environ.get("SOURCE_URL")
 if not SOURCE_URL:
     raise ValueError("Не задана переменная окружения SOURCE_URL")
 
-# Токен для IPinfo (если добавите в GitHub Secrets, будет использоваться как резерв)
-IPINFO_TOKEN = os.environ.get("IPINFO_TOKEN", "") 
-
+# Страны для поиска
 FILTER_WORDS = [
     "poland", "germany", "finland", "sweden", "lithuania", 
     "norway", "estonia", "belarus", "kazakhstan", "uzbekistan", 
@@ -34,8 +32,8 @@ TIER1_COUNTRIES = ["PL", "FI", "DE", "SE", "LT", "NO", "EE"]
 # Страны, которые всегда отправляются в самый низ
 TIER3_COUNTRIES = ["BY", "KZ", "UZ", "IL", "AZ", "UA"]
 
-# Словарь для страховки, если API вообще не ответит
-FALLBACK_COUNTRIES = {
+# Словарь, который переводит название страны из подписки в код и флаг
+COUNTRY_MAP = {
     "poland": ("PL", "🇵🇱"), "germany": ("DE", "🇩🇪"), "finland": ("FI", "🇫🇮"),
     "sweden": ("SE", "🇸🇪"), "lithuania": ("LT", "🇱🇹"), "norway": ("NO", "🇳🇴"),
     "estonia": ("EE", "🇪🇪"), "belarus": ("BY", "🇧🇾"), "kazakhstan": ("KZ", "🇰🇿"),
@@ -71,75 +69,6 @@ def get_protocol_and_transport(item):
     except Exception:
         pass
     return "VPN"
-
-def get_server_address(item):
-    """Строго ищет адрес именно в блоке прокси, чтобы не взять случайный IP из DNS."""
-    try:
-        for ob in item.get("outbounds", []):
-            proto = ob.get("protocol", "").lower()
-            if proto in ["vless", "vmess", "trojan", "shadowsocks", "hysteria", "hysteria2"]:
-                settings = ob.get("settings", {})
-                if "vnext" in settings and settings["vnext"]:
-                    return settings["vnext"][0].get("address")
-                if "servers" in settings and settings["servers"]:
-                    return settings["servers"][0].get("address")
-                if "address" in settings:  # Для Hysteria
-                    return settings.get("address")
-    except Exception:
-        pass
-    return None
-
-def get_country_getmyip(ip):
-    """Определяет страну через getmyip.pro (без ключа, 10k запросов/день)."""
-    try:
-        r = requests.get(f"https://getmyip.pro/{ip}?format=json", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            return data.get("country_code")
-    except Exception:
-        pass
-    return None
-
-def get_country_ipinfo(ip, token):
-    """Определяет страну через IPinfo (требуется бесплатный токен)."""
-    if not token:
-        return None
-    try:
-        r = requests.get(f"https://ipinfo.io/{ip}/json?token={token}", timeout=5)
-        if r.status_code == 200:
-            data = r.json()
-            return data.get("country")
-    except Exception:
-        pass
-    return None
-
-def get_country_info(ip, default_word):
-    """Определяет страну с помощью нескольких источников для надежности."""
-    default_code, default_flag = FALLBACK_COUNTRIES.get(default_word.lower(), ("XX", "🏴‍☠️"))
-    
-    if not ip:
-        return default_code, default_flag
-
-    # 1. Пытаемся через getmyip.pro
-    code = get_country_getmyip(ip)
-    
-    # 2. Если не вышло, пытаемся через IPinfo
-    if not code:
-        code = get_country_ipinfo(ip, IPINFO_TOKEN)
-    
-    if code:
-        return code, country_code_to_flag(code)
-    
-    # 3. Если ничего не сработало, возвращаем страну по умолчанию
-    return default_code, default_flag
-
-def country_code_to_flag(country_code):
-    if not country_code or len(country_code) != 2 or country_code == "XX":
-        return "🏴‍☠️"
-    try:
-        return chr(ord(country_code[0].upper()) + 127397) + chr(ord(country_code[1].upper()) + 127397)
-    except Exception:
-        return "🏴‍☠️"
 
 def real_ping(item_json, index):
     port = 10000 + index
@@ -196,7 +125,7 @@ def main():
         print(f"  Ошибка при скачивании: {e}")
         return
 
-    print(f"[2/4] Поиск серверов по странам...")
+    print(f"[2/4] Поиск серверов по названиям стран...")
     matched_items = []
     
     if raw.startswith("[") and raw.endswith("]"):
@@ -205,6 +134,7 @@ def main():
             for item in data:
                 remarks = item.get("remarks", "")
                 for word in FILTER_WORDS:
+                    # Ищем слово в названии (например, Poland)
                     if word.lower() in remarks.lower():
                         item["_matched_word"] = word
                         matched_items.append(item)
@@ -238,27 +168,15 @@ def main():
             else:
                 print(f"  ❌ НЕ РАБОТАЕТ: {remarks}")
 
-    print(f"[4/4] Геолокация, определение приоритетов и сохранение...")
+    print(f"[4/4] Определение приоритетов и сохранение...")
     
-    # 1. Собираем IP-адреса для всех живых серверов
-    item_ips = []
-    for ping, item in alive_items:
-        addr = get_server_address(item)
-        ip = None
-        if addr:
-            try:
-                ip = socket.gethostbyname(addr)
-            except Exception:
-                ip = addr
-        item_ips.append(ip)
-
     processed_items = []
-    for i, (ping, item) in enumerate(alive_items):
+    for ping, item in alive_items:
+        # Берем страну из названия подписки
         matched_word = item.pop("_matched_word", "poland")
-        ip = item_ips[i]
         
-        # Определяем страну (через API или дефолт)
-        code, flag = get_country_info(ip, matched_word)
+        # Получаем код и флаг из нашего словаря
+        code, flag = COUNTRY_MAP.get(matched_word.lower(), ("XX", "🏴‍☠️"))
         transport = get_protocol_and_transport(item)
         
         # === ЛОГИКА ПРИОРИТЕТОВ ===
