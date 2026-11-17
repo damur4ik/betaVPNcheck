@@ -1,11 +1,11 @@
 name: Update VPN Subscription
 on:
   schedule:
-    - cron: '*/30 * * * *'   # Запуск каждые 30 минут
-  workflow_dispatch:          # Возможность запустить вручную
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write             # Права на запись (чтобы бот мог сохранять файл)
+  contents: write
 
 jobs:
   update:
@@ -31,7 +31,6 @@ jobs:
       - name: Run filter script
         env:
           SOURCE_URL: ${{ secrets.SOURCE_URL }}
-          IPINFO_TOKEN: "6cd80befed69e2"  # Ваш токен IPinfo (вписан прямо сюда)
         run: python filter.py
 
       - name: Commit and push if changed
