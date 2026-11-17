@@ -1,49 +1,46 @@
-name: Update VPN Subscription
+name: Update Server List
+
 on:
   schedule:
-    - cron: '7,37 * * * *'   # Запуск в 7 и 37 минут каждого часа (снижает задержки GitHub)
-  workflow_dispatch:         # Ручной запуск
-
-permissions:
-  contents: write
+    - cron: '*/30 * * * *'  # Запуск каждые 30 минут
+  workflow_dispatch:        # Позволяет запустить скрипт вручную кнопкой на вкладке Actions
 
 jobs:
-  update:
+  update-servers:
     runs-on: ubuntu-latest
+    
+    # Обязательные права для того, чтобы бот мог закоммитить и запушить filtered.txt
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-      - name: Install dependencies and Xray
+      - name: Install dependencies
         run: |
-          pip install requests requests[socks]
-          wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
-          unzip -q Xray-linux-64.zip -d xray_bin
+          pip install requests
+
+      - name: Download and prepare Xray binary
+        run: |
+          mkdir -p xray_bin
+          wget -O xray.zip https://github.com/XTLS/Xray-core/releases/download/v1.8.24/Xray-linux-64.zip
+          unzip xray.zip -d xray_bin/
           chmod +x xray_bin/xray
 
-      - name: Run filter script
+      - name: Run update script
         env:
           SOURCE_URL: ${{ secrets.SOURCE_URL }}
-        run: python filter.py
+        run: python update.py  # Укажите точное имя файла с вашим скриптом, если оно отличается
 
-      - name: Commit and push if changed
+      - name: Commit and push filtered list if changed
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add filtered.txt
-          git diff --staged --quiet || git commit -m "Auto-update subscription"
-          git pull --rebase origin main
-          git push
-
-      - name: Purge jsDelivr cache
-        uses: List-KR/jsdelivr-purge@7.0.1
-        with:
-          urls: |
-            https://cdn.jsdelivr.net/gh/damur4ik/betaVPNcheck@main/filtered.txt
+          git diff --staging --quiet || (git commit -m "Auto-update filtered servers [skip ci]" && git push)
