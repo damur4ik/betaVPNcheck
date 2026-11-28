@@ -1,5 +1,513 @@
 [
   {
+    "remarks": "🇱🇹 LT Hys2",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    },
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "hysteria",
+        "settings": {
+          "address": "tuv10.harcho.shop",
+          "port": 443,
+          "version": 2,
+          "security": "tls"
+        },
+        "streamSettings": {
+          "network": "hysteria",
+          "security": "tls",
+          "hysteriaSettings": {
+            "auth": "f88bc31a-c30a-4a7f-bca6-5bc95d5bb593",
+            "version": 2
+          },
+          "tlsSettings": {
+            "serverName": "tuv10.harcho.shop",
+            "alpn": [
+              "h3"
+            ]
+          }
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ]
+  },
+  {
+    "remarks": "🇱🇹 LT Hys2 #2",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    },
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "hysteria",
+        "settings": {
+          "address": "tuv10.harcho.shop",
+          "port": 443,
+          "version": 2,
+          "fp": "random"
+        },
+        "streamSettings": {
+          "network": "hysteria",
+          "security": "tls",
+          "hysteriaSettings": {
+            "auth": "f88bc31a-c30a-4a7f-bca6-5bc95d5bb593",
+            "version": 2
+          },
+          "tlsSettings": {
+            "serverName": "tuv10.harcho.shop",
+            "alpn": [
+              "h3"
+            ]
+          }
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ]
+  },
+  {
     "remarks": "🇵🇱 PL Hys2",
     "log": {
       "loglevel": "warning"
@@ -510,1023 +1018,6 @@
     ]
   },
   {
-    "remarks": "🇱🇹 LT Hys2",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    },
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "hysteria",
-        "settings": {
-          "address": "tuv10.harcho.shop",
-          "port": 443,
-          "version": 2,
-          "fp": "random"
-        },
-        "streamSettings": {
-          "network": "hysteria",
-          "security": "tls",
-          "hysteriaSettings": {
-            "auth": "f88bc31a-c30a-4a7f-bca6-5bc95d5bb593",
-            "version": 2
-          },
-          "tlsSettings": {
-            "serverName": "tuv10.harcho.shop",
-            "alpn": [
-              "h3"
-            ]
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ]
-  },
-  {
-    "remarks": "🇱🇹 LT Hys2 #2",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    },
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "hysteria",
-        "settings": {
-          "address": "185.237.185.142",
-          "port": 443,
-          "version": 2,
-          "fp": "firefox"
-        },
-        "streamSettings": {
-          "network": "hysteria",
-          "security": "tls",
-          "hysteriaSettings": {
-            "auth": "ccb8ff48-3934-4250-b4ec-bb76b95d154f",
-            "version": 2
-          },
-          "tlsSettings": {
-            "serverName": "185.237.185.142",
-            "alpn": [
-              "h3"
-            ],
-            "verifyPeerCertByName": "lth3.fox-lisa.ru"
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ]
-  },
-  {
-    "remarks": "🇩🇪 DE Hys2",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    },
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "hysteria",
-        "settings": {
-          "address": "k0l0ut.khovanski.mom",
-          "port": 443,
-          "version": 2,
-          "fp": "random"
-        },
-        "streamSettings": {
-          "network": "hysteria",
-          "security": "tls",
-          "hysteriaSettings": {
-            "auth": "f88bc31a-c30a-4a7f-bca6-5bc95d5bb593",
-            "version": 2
-          },
-          "tlsSettings": {
-            "serverName": "k0l0ut.khovanski.mom",
-            "alpn": [
-              "h3"
-            ]
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ]
-  },
-  {
-    "remarks": "🇩🇪 DE Hys2 #2",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    },
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "hysteria",
-        "settings": {
-          "address": "193.124.66.172",
-          "port": 8406,
-          "version": 2,
-          "fp": "chrome"
-        },
-        "streamSettings": {
-          "network": "hysteria",
-          "security": "tls",
-          "hysteriaSettings": {
-            "auth": "2444df7f-4a0c-45bd-9c62-25a7ff8c4dba",
-            "version": 2
-          },
-          "tlsSettings": {
-            "serverName": "de.0000000000000.space",
-            "alpn": [
-              "h3"
-            ]
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ]
-  },
-  {
     "remarks": "🇫🇮 FI Hys2",
     "log": {
       "loglevel": "warning"
@@ -1750,32 +1241,22 @@
         "tag": "proxy",
         "protocol": "hysteria",
         "settings": {
-          "address": "193.124.66.172",
-          "port": 8403,
+          "address": "fl6.edgeport.cloud",
+          "port": 4444,
           "version": 2,
-          "fp": "chrome"
+          "fp": "firefox"
         },
         "streamSettings": {
           "network": "hysteria",
           "security": "tls",
           "hysteriaSettings": {
-            "auth": "2444df7f-4a0c-45bd-9c62-25a7ff8c4dba",
+            "auth": "7b1a2579-4956-4230-be61-6bed0c4d012d",
             "version": 2
           },
           "tlsSettings": {
-            "serverName": "fl2.0000000000000.space",
+            "serverName": "fl6.edgeport.cloud",
             "alpn": [
               "h3"
-            ]
-          },
-          "finalmask": {
-            "udp": [
-              {
-                "type": "salamander",
-                "settings": {
-                  "password": "YMe19DQVOXRIEApse3LCiNw6WcBIn2H8"
-                }
-              }
             ]
           }
         }
@@ -2014,8 +1495,262 @@
         "tag": "proxy",
         "protocol": "hysteria",
         "settings": {
+          "address": "fl3.edgeport.cloud",
+          "port": 4444,
+          "version": 2,
+          "fp": "firefox"
+        },
+        "streamSettings": {
+          "network": "hysteria",
+          "security": "tls",
+          "hysteriaSettings": {
+            "auth": "7b1a2579-4956-4230-be61-6bed0c4d012d",
+            "version": 2
+          },
+          "tlsSettings": {
+            "serverName": "fl3.edgeport.cloud",
+            "alpn": [
+              "h3"
+            ]
+          }
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ]
+  },
+  {
+    "remarks": "🇵🇱 PL Hys2 #2",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    },
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "hysteria",
+        "settings": {
           "address": "89.110.95.79",
-          "port": 8402,
+          "port": 8405,
           "version": 2,
           "fp": "chrome"
         },
@@ -2027,7 +1762,7 @@
             "version": 2
           },
           "tlsSettings": {
-            "serverName": "fl.0000000000000.space",
+            "serverName": "poland.0000000000000.space",
             "alpn": [
               "h3"
             ]
@@ -2037,9 +1772,263 @@
               {
                 "type": "salamander",
                 "settings": {
-                  "password": "YMe19DQVOXRIEApse3LCiNw6WcBIn2H8"
+                  "password": "BlWFOIUJTm5Y5pP02vmXnHBG2oyWsrJd"
                 }
               }
+            ]
+          }
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ]
+  },
+  {
+    "remarks": "🇩🇪 DE Hys2",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    },
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "hysteria",
+        "settings": {
+          "address": "193.124.66.172",
+          "port": 8406,
+          "version": 2,
+          "fp": "chrome"
+        },
+        "streamSettings": {
+          "network": "hysteria",
+          "security": "tls",
+          "hysteriaSettings": {
+            "auth": "2444df7f-4a0c-45bd-9c62-25a7ff8c4dba",
+            "version": 2
+          },
+          "tlsSettings": {
+            "serverName": "de.0000000000000.space",
+            "alpn": [
+              "h3"
             ]
           }
         }
@@ -2378,7 +2367,7 @@
         ]
       }
     },
-    "remarks": "🇸🇪 SE xhttp",
+    "remarks": "🇩🇪 DE TCP",
     "log": {
       "loglevel": "warning"
     },
@@ -2430,56 +2419,44 @@
         "settings": {
           "vnext": [
             {
-              "address": "185.186.78.43",
-              "port": 500,
+              "address": "germka.romennaya.xyz",
+              "port": 443,
               "users": [
                 {
-                  "id": "ccb8ff48-3934-4250-b4ec-bb76b95d154f",
+                  "id": "f88bc31a-c30a-4a7f-bca6-5bc95d5bb593",
                   "encryption": "none",
-                  "flow": ""
+                  "flow": "xtls-rprx-vision"
                 }
               ]
             }
           ]
         },
         "streamSettings": {
-          "network": "xhttp",
-          "security": "tls",
-          "tlsSettings": {
+          "network": "tcp",
+          "security": "reality",
+          "realitySettings": {
             "fingerprint": "firefox",
-            "verifyPeerCertByName": "seh1.fox-lisa.ru",
-            "alpn": [
-              "h3"
-            ]
+            "serverName": "germka.romennaya.xyz",
+            "publicKey": "DYZygG3SAwaVASLcFDQQ5-mD6I3vslQbQvPw4BP_jFg",
+            "shortId": "91843f43e9470b9c",
+            "spiderX": "/"
           },
-          "xhttpSettings": {
-            "path": "/live/seg",
-            "host": "",
-            "mode": "stream-one"
-          },
+          "tcpSettings": {},
           "finalmask": {
-            "tcp": null,
+            "tcp": [
+              {
+                "type": "fragment",
+                "settings": {
+                  "length": "10-20",
+                  "packets": "tlshello",
+                  "interval": "10-20"
+                }
+              }
+            ],
             "udp": null,
-            "quicParams": {
-              "congestion": "bbr",
-              "debug": false,
-              "bbrProfile": "aggressive",
-              "brutalUp": "",
-              "brutalDown": "",
-              "brutalDisableLossCompensation": false,
-              "initStreamReceiveWindow": 8388608,
-              "maxStreamReceiveWindow": 67108864,
-              "initConnectionReceiveWindow": 20971520,
-              "maxConnectionReceiveWindow": 134217728,
-              "maxIdleTimeout": 0,
-              "keepAlivePeriod": 10,
-              "disablePathMTUDiscovery": true,
-              "disableChromeParrot": false,
-              "disableGSO": false,
-              "maxIncomingStreams": 4096,
-              "disableStatelessReset": false
-            }
-          }
+            "quicParams": null
+          },
+          "spx": "/"
         }
       },
       {
@@ -2606,6 +2583,516 @@
         }
       ]
     }
+  },
+  {
+    "remarks": "🇩🇪 DE TROJAN",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    },
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "trojan",
+        "settings": {
+          "servers": [
+            {
+              "address": "de10.mous-speed.site",
+              "port": 443,
+              "password": "DhRGKU0ex3QxEyLa5JUZcpvtQJvE6A_V"
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "security": "tls",
+          "tlsSettings": {
+            "serverName": "de10.mous-speed.site",
+            "fingerprint": "randomized",
+            "alpn": [
+              "h2"
+            ]
+          },
+          "tcpSettings": {}
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ]
+  },
+  {
+    "remarks": "🇩🇪 DE TROJAN #2",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    },
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "trojan",
+        "settings": {
+          "servers": [
+            {
+              "address": "de10.mous-speed.site",
+              "port": 443,
+              "password": "DhRGKU0ex3QxEyLa5JUZcpvtQJvE6A_V"
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "tcp",
+          "security": "tls",
+          "tlsSettings": {
+            "serverName": "de10.mous-speed.site",
+            "fingerprint": "randomized",
+            "alpn": [
+              "h2"
+            ]
+          },
+          "tcpSettings": {}
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ]
   },
   {
     "dns": {
@@ -2928,7 +3415,7 @@
         ]
       }
     },
-    "remarks": "🇸🇪 SE TCP",
+    "remarks": "🇱🇹 LT TCP",
     "log": {
       "loglevel": "warning"
     },
@@ -2980,11 +3467,11 @@
         "settings": {
           "vnext": [
             {
-              "address": "sweringa.rottshieldsons.pics",
-              "port": 443,
+              "address": "vps-ins.maga-vps.shop",
+              "port": 15136,
               "users": [
                 {
-                  "id": "f88bc31a-c30a-4a7f-bca6-5bc95d5bb593",
+                  "id": "40c88029-4021-5432-9d60-6fb382e0c3c8",
                   "encryption": "none",
                   "flow": "xtls-rprx-vision"
                 }
@@ -2997,11 +3484,13 @@
           "security": "reality",
           "realitySettings": {
             "fingerprint": "firefox",
-            "serverName": "sweringa.rottshieldsons.pics",
-            "publicKey": "x6p656szvu_3CKLsJ4NtkooRvdTVGx7IoPca_p58_jA",
-            "shortId": "fb442438e2223836"
+            "serverName": "vps-ins.maga-vps.shop",
+            "publicKey": "Dfk-4PMG0v8Dusqlk-A75OBM7Nb65J-2Qvdwy0hyDUU",
+            "shortId": "7339504c71c1c2b3",
+            "spiderX": "/"
           },
-          "tcpSettings": {}
+          "tcpSettings": {},
+          "spx": "/"
         }
       },
       {
@@ -3240,793 +3729,13 @@
         "settings": {
           "vnext": [
             {
-              "address": "lv4.nuvoryxdata.com",
-              "port": 443,
+              "address": "82.202.182.32",
+              "port": 5269,
               "users": [
                 {
-                  "id": "81f705b5-9039-4adf-8671-783095bba0e8",
-                  "encryption": "none",
-                  "flow": "xtls-rprx-vision"
-                }
-              ]
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "tcp",
-          "security": "tls",
-          "tlsSettings": {
-            "serverName": "lv4.nuvoryxdata.com",
-            "fingerprint": "firefox",
-            "alpn": [
-              "h2",
-              "http/1.1"
-            ]
-          },
-          "tcpSettings": {}
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    }
-  },
-  {
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "remarks": "🇪🇪 EE xhttp",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "vless",
-        "settings": {
-          "vnext": [
-            {
-              "address": "179.253.81.242",
-              "port": 443,
-              "users": [
-                {
-                  "id": "f331e7b6-9fcd-4aa2-b06a-a525831fb0bc",
+                  "id": "0d4807a7-260b-4d66-a71e-5e793c46c66e",
                   "encryption": "none",
                   "flow": ""
-                }
-              ]
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "xhttp",
-          "security": "tls",
-          "tlsSettings": {
-            "serverName": "ee.cultcorp.net",
-            "fingerprint": "random"
-          },
-          "xhttpSettings": {
-            "path": "/edge/stream",
-            "host": "179.253.81.242",
-            "mode": "auto"
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    }
-  },
-  {
-    "remarks": "🇫🇮 FI TROJAN",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    },
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "trojan",
-        "settings": {
-          "servers": [
-            {
-              "address": "152.234.245.206",
-              "port": 8443,
-              "password": "JEwhFJ9rkAnbbDk5hxTWfDZEL1Fnrru2"
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "tcp",
-          "security": "tls",
-          "tlsSettings": {
-            "serverName": "flf.serverstats.ru",
-            "fingerprint": "firefox",
-            "alpn": [
-              "h2",
-              "http/1.1"
-            ]
-          },
-          "tcpSettings": {}
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ]
-  },
-  {
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "remarks": "🇩🇪 DE TCP",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "vless",
-        "settings": {
-          "vnext": [
-            {
-              "address": "gta6stats.cloud",
-              "port": 443,
-              "users": [
-                {
-                  "id": "9a9f167d-b461-466f-be50-f0ffd598a6f8",
-                  "encryption": "none",
-                  "flow": "xtls-rprx-vision"
                 }
               ]
             }
@@ -4036,12 +3745,14 @@
           "network": "tcp",
           "security": "reality",
           "realitySettings": {
-            "fingerprint": "firefox",
-            "serverName": "gta6stats.cloud",
-            "publicKey": "08UhVIse823k1_ZeduUu3pC7cQyL4Hhd0scU9yEVbgU",
-            "shortId": "783deebdb6f7a532"
+            "fingerprint": "qq",
+            "serverName": "max.ru",
+            "publicKey": "meI7RA9FgxL1yjJsbJBehEKoB2Z1ra4hyYJso9qtmFA",
+            "shortId": "4b198dc3bfffb7af",
+            "spiderX": "/"
           },
-          "tcpSettings": {}
+          "tcpSettings": {},
+          "spx": "/"
         }
       },
       {
@@ -4280,11 +3991,11 @@
         "settings": {
           "vnext": [
             {
-              "address": "138.16.128.146",
+              "address": "fl1.sky-vault.top",
               "port": 443,
               "users": [
                 {
-                  "id": "42d9e647-3176-4753-9a03-c114c54650bc",
+                  "id": "81f705b5-9039-4adf-8671-783095bba0e8",
                   "encryption": "none",
                   "flow": "xtls-rprx-vision"
                 }
@@ -4297,11 +4008,846 @@
           "security": "reality",
           "realitySettings": {
             "fingerprint": "firefox",
-            "serverName": "hero.thomaserv.pro",
-            "publicKey": "gKNqnEaBk24TUCabimQaDcTZRBAtfIYvdFqnjy5ACWs",
-            "shortId": "b3062b7f7b428abe"
+            "serverName": "fl1.sky-vault.top",
+            "publicKey": "_KTsOFhGnC0W28ZqO8_FApozMp7tJ9cVBTLKLAA_OR0",
+            "shortId": "ae64c9b46bff174a"
           },
           "tcpSettings": {}
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    }
+  },
+  {
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "remarks": "🇩🇪 DE xhttp",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "juniperatlas.elvano.website",
+              "port": 443,
+              "users": [
+                {
+                  "id": "749b1c56-e658-4bf5-94bd-5c3286a4aed1",
+                  "encryption": "none",
+                  "flow": ""
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "xhttp",
+          "security": "tls",
+          "tlsSettings": {
+            "serverName": "juniperatlas.elvano.website",
+            "fingerprint": "firefox",
+            "alpn": [
+              "h2"
+            ]
+          },
+          "xhttpSettings": {
+            "path": "/api/collections/preview?view=reader&format=compact",
+            "host": "juniperatlas.elvano.website",
+            "mode": "packet-up",
+            "extra": {
+              "seqKey": "page",
+              "headers": {
+                "Accept": "application/json, text/plain, */*",
+                "Origin": "https://juniperatlas.elvano.website",
+                "Referer": "https://juniperatlas.elvano.website/notes/lake-before-light.html",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "same-origin",
+                "Accept-Language": "en-US,en;q=0.9"
+              },
+              "noSSEHeader": true,
+              "xPaddingKey": "v",
+              "noGRPCHeader": true,
+              "seqPlacement": "query",
+              "sessionIDKey": "session",
+              "xPaddingBytes": "24-48",
+              "xPaddingHeader": "X-Preview-Key",
+              "xPaddingMethod": "tokenish",
+              "xPaddingObfsMode": true,
+              "xPaddingPlacement": "query",
+              "sessionIDPlacement": "query"
+            }
+          },
+          "finalmask": {
+            "tcp": [
+              {
+                "type": "fragment",
+                "settings": {
+                  "delay": "0",
+                  "delays": [
+                    "0"
+                  ],
+                  "length": "10-20",
+                  "lengths": [
+                    "10-20"
+                  ],
+                  "packets": "tlshello"
+                }
+              }
+            ],
+            "udp": null,
+            "quicParams": null
+          }
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    }
+  },
+  {
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "remarks": "🇫🇮 FI xhttp",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "89.221.203.134",
+              "port": 24611,
+              "users": [
+                {
+                  "id": "7b1a2579-4956-4230-be61-6bed0c4d012d",
+                  "encryption": "none",
+                  "flow": ""
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "xhttp",
+          "security": "tls",
+          "tlsSettings": {
+            "serverName": "fl1.edgeport.cloud",
+            "fingerprint": "firefox"
+          },
+          "xhttpSettings": {
+            "path": "/api/v1/sync/",
+            "host": "fl1.edgeport.cloud",
+            "mode": "auto"
+          }
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom"
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole"
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPOnDemand",
+      "rules": [
+        {
+          "type": "field",
+          "protocol": [
+            "bittorrent"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "network": "tcp,udp",
+          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "full:dht.libtorrent.org"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "domain": [
+            "domain:gosuslugi.ru",
+            "domain:mos.ru",
+            "domain:nalog.gov.ru",
+            "domain:rzd.ru",
+            "domain:tutu.ru",
+            "domain:avito.ru",
+            "domain:avito.st",
+            "domain:auto.ru",
+            "domain:drom.ru",
+            "domain:ozon.ru",
+            "domain:ozone.ru",
+            "domain:ozonusercontent.com",
+            "domain:wildberries.ru",
+            "domain:wb.ru",
+            "domain:wbbasket.ru",
+            "domain:wb-basket.ru",
+            "domain:wbstatic.net",
+            "domain:yandex.ru",
+            "domain:yandex.net",
+            "domain:yastatic.net",
+            "domain:ya.ru",
+            "domain:kinopoisk.ru",
+            "domain:mail.ru",
+            "domain:mailcdn.ru",
+            "domain:imgsmail.ru",
+            "domain:vk.com",
+            "domain:vk.ru",
+            "domain:vk-portal.net",
+            "domain:userapi.com",
+            "domain:vkuseraudio.net",
+            "domain:vkuserlive.net",
+            "domain:vkuservideo.net",
+            "domain:vkvideo.ru",
+            "domain:ok.ru",
+            "domain:okcdn.ru",
+            "domain:mycdn.me",
+            "domain:max.ru",
+            "domain:oneme.ru",
+            "domain:rutube.ru",
+            "domain:okko.tv",
+            "domain:premier.one",
+            "domain:smotrim.ru",
+            "domain:rustore.ru",
+            "domain:2gis.ru",
+            "domain:2gis.com",
+            "domain:mts.ru",
+            "domain:t2.ru",
+            "domain:tele2.ru",
+            "domain:beeline.ru",
+            "domain:megafon.ru",
+            "domain:funpay.com",
+            "domain:yougame.biz",
+            "domain:sberbank.ru",
+            "domain:sber.ru",
+            "domain:sberbank.com",
+            "domain:sbrf.ru",
+            "domain:tbank.ru",
+            "domain:tinkoff.ru",
+            "domain:t-bank-app.ru",
+            "domain:tbank-online.com",
+            "domain:tinkoffcdn.ru",
+            "domain:cdn-tinkoff.ru",
+            "domain:sovcombank.ru",
+            "domain:sovcombank.com",
+            "domain:sovcombank.business",
+            "domain:halvacard.ru",
+            "domain:gethalva.ru",
+            "domain:alfabank.ru",
+            "domain:alfabank.com",
+            "domain:alfa-bank.ru",
+            "domain:alfa-bank.com",
+            "domain:aclub.ru",
+            "domain:vtb.ru",
+            "domain:vtb.com",
+            "domain:vtb24.ru"
+          ],
+          "outboundTag": "direct"
+        },
+        {
+          "type": "field",
+          "outboundTag": "proxy",
+          "inboundTag": [
+            "socks",
+            "http"
+          ],
+          "network": "tcp,udp"
+        }
+      ]
+    }
+  },
+  {
+    "dns": {
+      "queryStrategy": "UseIPv4",
+      "servers": [
+        "1.1.1.1",
+        {
+          "address": "localhost",
+          "domains": [
+            "geosite:private"
+          ],
+          "skipFallback": true,
+          "tag": "local-dns"
+        },
+        {
+          "address": "https://common.dot.dns.yandex.net/dns-query",
+          "domains": [
+            "geosite:category-ru",
+            "domain:nalog.ru",
+            "domain:gov.ru",
+            "domain:mwscdn.ru"
+          ],
+          "skipFallback": true,
+          "tag": "yandex-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://cloudflare-dns.com/dns-query",
+          "tag": "cloudflare-dns",
+          "timeoutMs": 1000
+        },
+        {
+          "address": "https://dns.google/dns-query",
+          "tag": "google-dns",
+          "timeoutMs": 1000
+        },
+        "1.0.0.1"
+      ],
+      "disableFallback": false,
+      "hosts": {
+        "cloudflare-dns.com": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ],
+        "common.dot.dns.yandex.net": [
+          "77.88.8.8",
+          "77.88.8.1"
+        ],
+        "dns.google": [
+          "8.8.8.8",
+          "8.8.4.4"
+        ],
+        "lkfl2.nalog.ru": "213.24.64.175",
+        "lknpd.nalog.ru": "213.24.64.181",
+        "one.one.one.one": [
+          "1.1.1.1",
+          "1.0.0.1"
+        ]
+      }
+    },
+    "remarks": "🇪🇪 EE xhttp",
+    "log": {
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "socks",
+        "port": 10808,
+        "listen": "127.0.0.1",
+        "protocol": "socks",
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      },
+      {
+        "tag": "http",
+        "port": 10809,
+        "listen": "127.0.0.1",
+        "protocol": "http",
+        "settings": {
+          "allowTransparent": false
+        },
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls",
+            "quic"
+          ],
+          "metadataOnly": false,
+          "routeOnly": true
+        }
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vless",
+        "settings": {
+          "vnext": [
+            {
+              "address": "31.77.138.211",
+              "port": 8443,
+              "users": [
+                {
+                  "id": "55ba7b31-b0eb-4362-9c9b-fc53b0a53fab",
+                  "encryption": "none",
+                  "flow": ""
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "xhttp",
+          "security": "reality",
+          "realitySettings": {
+            "fingerprint": "firefox",
+            "serverName": "fi3.setlocation.top",
+            "publicKey": "NCJNc0NqiDsOmTx8gJSzdNhWylbA6jSaQQYKW50HKzc",
+            "shortId": "e4df5704c91b57bd"
+          },
+          "xhttpSettings": {
+            "path": "/4c6a7f5ff99a",
+            "host": "",
+            "mode": "auto"
+          }
         }
       },
       {
@@ -4752,1331 +5298,6 @@
         ]
       }
     },
-    "remarks": "🇫🇮 FI xhttp",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "vless",
-        "settings": {
-          "vnext": [
-            {
-              "address": "gta6dlc.online",
-              "port": 443,
-              "users": [
-                {
-                  "id": "9a9f167d-b461-466f-be50-f0ffd598a6f8",
-                  "encryption": "none",
-                  "flow": ""
-                }
-              ]
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "xhttp",
-          "security": "reality",
-          "realitySettings": {
-            "fingerprint": "firefox",
-            "serverName": "gta6dlc.online",
-            "publicKey": "w4ZiG3DmgVrYACxQF1TM50DMNVlALm1lJm8-03-hiAM",
-            "shortId": "4304d699c8dcbffa"
-          },
-          "xhttpSettings": {
-            "path": "/932ae418a457/08306b8a",
-            "host": "gta6dlc.online",
-            "mode": "auto"
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    }
-  },
-  {
-    "remarks": "🇵🇱 PL TROJAN",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    },
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "trojan",
-        "settings": {
-          "servers": [
-            {
-              "address": "78.159.250.98",
-              "port": 443,
-              "password": "JEwhFJ9rkAnbbDk5hxTWfDZEL1Fnrru2"
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "tcp",
-          "security": "tls",
-          "tlsSettings": {
-            "serverName": "node228.overgroup.cloud",
-            "fingerprint": "firefox",
-            "alpn": [
-              "h2",
-              "http/1.1"
-            ]
-          },
-          "tcpSettings": {}
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ]
-  },
-  {
-    "remarks": "🇵🇱 PL TROJAN #2",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    },
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "trojan",
-        "settings": {
-          "servers": [
-            {
-              "address": "78.159.250.189",
-              "port": 443,
-              "password": "JEwhFJ9rkAnbbDk5hxTWfDZEL1Fnrru2"
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "tcp",
-          "security": "tls",
-          "tlsSettings": {
-            "serverName": "node228.overgroup.cloud",
-            "fingerprint": "firefox",
-            "alpn": [
-              "h2",
-              "http/1.1"
-            ]
-          },
-          "tcpSettings": {}
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ]
-  },
-  {
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "remarks": "🇱🇹 LT gRPC",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "vless",
-        "settings": {
-          "vnext": [
-            {
-              "address": "82.147.74.236",
-              "port": 9446,
-              "users": [
-                {
-                  "id": "bbbc7d3c-61cf-4b67-bace-1ef0dfb2bc40",
-                  "encryption": "none",
-                  "flow": ""
-                }
-              ]
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "grpc",
-          "security": "reality",
-          "realitySettings": {
-            "fingerprint": "firefox",
-            "serverName": "node43.lmdscdn.ru",
-            "publicKey": "PVlnR_I9tZ8hKhOHW6ySpSofhsaShcBQ_JV2-0TePVA",
-            "shortId": "1b82a4b65780e1a3"
-          },
-          "grpcSettings": {
-            "serviceName": "livestreamcontent",
-            "multiMode": false
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    }
-  },
-  {
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
-    "remarks": "🇩🇪 DE xhttp",
-    "log": {
-      "loglevel": "warning"
-    },
-    "inbounds": [
-      {
-        "tag": "socks",
-        "port": 10808,
-        "listen": "127.0.0.1",
-        "protocol": "socks",
-        "settings": {
-          "auth": "noauth",
-          "udp": true
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      },
-      {
-        "tag": "http",
-        "port": 10809,
-        "listen": "127.0.0.1",
-        "protocol": "http",
-        "settings": {
-          "allowTransparent": false
-        },
-        "sniffing": {
-          "enabled": true,
-          "destOverride": [
-            "http",
-            "tls",
-            "quic"
-          ],
-          "metadataOnly": false,
-          "routeOnly": true
-        }
-      }
-    ],
-    "outbounds": [
-      {
-        "tag": "proxy",
-        "protocol": "vless",
-        "settings": {
-          "vnext": [
-            {
-              "address": "origin2.pd-service.shop",
-              "port": 443,
-              "users": [
-                {
-                  "id": "a38f5da6-ce38-4270-9ced-12a4df9b2811",
-                  "encryption": "none",
-                  "flow": ""
-                }
-              ]
-            }
-          ]
-        },
-        "streamSettings": {
-          "network": "xhttp",
-          "security": "tls",
-          "tlsSettings": {
-            "serverName": "origin2.pd-service.shop",
-            "fingerprint": "qq",
-            "alpn": [
-              "h2",
-              "http/1.1"
-            ]
-          },
-          "xhttpSettings": {
-            "path": "/api-test2",
-            "host": "origin2.pd-service.shop",
-            "mode": "packet-up",
-            "extra": {
-              "scMaxEachPostBytes": 16000,
-              "scMinPostsIntervalMs": 30,
-              "scMaxBufferedPosts": 30,
-              "xPaddingObfsMode": true,
-              "xPaddingKey": "dc",
-              "xPaddingHeader": "X-Cache",
-              "xPaddingMethod": "tokenish",
-              "xPaddingPlacement": "queryInHeader",
-              "uplinkHTTPMethod": "OPTIONS",
-              "scMaxConcurrentPosts": 100,
-              "xPaddingBytes": "100-1000",
-              "noGRPCHeader": false,
-              "xmux": {
-                "hMaxReusableSecs": 50,
-                "hMaxRequestTimes": 600,
-                "maxConcurrency": "16-32"
-              },
-              "uplinkDataPlacement": "header"
-            }
-          }
-        }
-      },
-      {
-        "tag": "direct",
-        "protocol": "freedom"
-      },
-      {
-        "tag": "block",
-        "protocol": "blackhole"
-      }
-    ],
-    "routing": {
-      "domainStrategy": "IPOnDemand",
-      "rules": [
-        {
-          "type": "field",
-          "protocol": [
-            "bittorrent"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "network": "tcp,udp",
-          "port": "6881-6889,6969,51413,6346-6347,4444,4662,4672,1337,2710,17417,21413,37305",
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "full:dht.libtorrent.org"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "domain": [
-            "domain:gosuslugi.ru",
-            "domain:mos.ru",
-            "domain:nalog.gov.ru",
-            "domain:rzd.ru",
-            "domain:tutu.ru",
-            "domain:avito.ru",
-            "domain:avito.st",
-            "domain:auto.ru",
-            "domain:drom.ru",
-            "domain:ozon.ru",
-            "domain:ozone.ru",
-            "domain:ozonusercontent.com",
-            "domain:wildberries.ru",
-            "domain:wb.ru",
-            "domain:wbbasket.ru",
-            "domain:wb-basket.ru",
-            "domain:wbstatic.net",
-            "domain:yandex.ru",
-            "domain:yandex.net",
-            "domain:yastatic.net",
-            "domain:ya.ru",
-            "domain:kinopoisk.ru",
-            "domain:mail.ru",
-            "domain:mailcdn.ru",
-            "domain:imgsmail.ru",
-            "domain:vk.com",
-            "domain:vk.ru",
-            "domain:vk-portal.net",
-            "domain:userapi.com",
-            "domain:vkuseraudio.net",
-            "domain:vkuserlive.net",
-            "domain:vkuservideo.net",
-            "domain:vkvideo.ru",
-            "domain:ok.ru",
-            "domain:okcdn.ru",
-            "domain:mycdn.me",
-            "domain:max.ru",
-            "domain:oneme.ru",
-            "domain:rutube.ru",
-            "domain:okko.tv",
-            "domain:premier.one",
-            "domain:smotrim.ru",
-            "domain:rustore.ru",
-            "domain:2gis.ru",
-            "domain:2gis.com",
-            "domain:mts.ru",
-            "domain:t2.ru",
-            "domain:tele2.ru",
-            "domain:beeline.ru",
-            "domain:megafon.ru",
-            "domain:funpay.com",
-            "domain:yougame.biz",
-            "domain:sberbank.ru",
-            "domain:sber.ru",
-            "domain:sberbank.com",
-            "domain:sbrf.ru",
-            "domain:tbank.ru",
-            "domain:tinkoff.ru",
-            "domain:t-bank-app.ru",
-            "domain:tbank-online.com",
-            "domain:tinkoffcdn.ru",
-            "domain:cdn-tinkoff.ru",
-            "domain:sovcombank.ru",
-            "domain:sovcombank.com",
-            "domain:sovcombank.business",
-            "domain:halvacard.ru",
-            "domain:gethalva.ru",
-            "domain:alfabank.ru",
-            "domain:alfabank.com",
-            "domain:alfa-bank.ru",
-            "domain:alfa-bank.com",
-            "domain:aclub.ru",
-            "domain:vtb.ru",
-            "domain:vtb.com",
-            "domain:vtb24.ru"
-          ],
-          "outboundTag": "direct"
-        },
-        {
-          "type": "field",
-          "outboundTag": "proxy",
-          "inboundTag": [
-            "socks",
-            "http"
-          ],
-          "network": "tcp,udp"
-        }
-      ]
-    }
-  },
-  {
-    "dns": {
-      "queryStrategy": "UseIPv4",
-      "servers": [
-        "1.1.1.1",
-        {
-          "address": "localhost",
-          "domains": [
-            "geosite:private"
-          ],
-          "skipFallback": true,
-          "tag": "local-dns"
-        },
-        {
-          "address": "https://common.dot.dns.yandex.net/dns-query",
-          "domains": [
-            "geosite:category-ru",
-            "domain:nalog.ru",
-            "domain:gov.ru",
-            "domain:mwscdn.ru"
-          ],
-          "skipFallback": true,
-          "tag": "yandex-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://cloudflare-dns.com/dns-query",
-          "tag": "cloudflare-dns",
-          "timeoutMs": 1000
-        },
-        {
-          "address": "https://dns.google/dns-query",
-          "tag": "google-dns",
-          "timeoutMs": 1000
-        },
-        "1.0.0.1"
-      ],
-      "disableFallback": false,
-      "hosts": {
-        "cloudflare-dns.com": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ],
-        "common.dot.dns.yandex.net": [
-          "77.88.8.8",
-          "77.88.8.1"
-        ],
-        "dns.google": [
-          "8.8.8.8",
-          "8.8.4.4"
-        ],
-        "lkfl2.nalog.ru": "213.24.64.175",
-        "lknpd.nalog.ru": "213.24.64.181",
-        "one.one.one.one": [
-          "1.1.1.1",
-          "1.0.0.1"
-        ]
-      }
-    },
     "remarks": "🇰🇿 KZ TCP",
     "log": {
       "loglevel": "warning"
@@ -6337,7 +5558,7 @@
         ]
       }
     },
-    "remarks": "🇰🇿 KZ gRPC",
+    "remarks": "🇰🇿 KZ TCP #2",
     "log": {
       "loglevel": "warning"
     },
@@ -6389,31 +5610,28 @@
         "settings": {
           "vnext": [
             {
-              "address": "82.147.74.236",
-              "port": 9445,
+              "address": "kz1.sky-vault.top",
+              "port": 443,
               "users": [
                 {
-                  "id": "bbb4172b-6f75-495b-99d4-3292ad72920d",
+                  "id": "81f705b5-9039-4adf-8671-783095bba0e8",
                   "encryption": "none",
-                  "flow": ""
+                  "flow": "xtls-rprx-vision"
                 }
               ]
             }
           ]
         },
         "streamSettings": {
-          "network": "grpc",
+          "network": "tcp",
           "security": "reality",
           "realitySettings": {
             "fingerprint": "firefox",
-            "serverName": "node43.lmdscdn.ru",
-            "publicKey": "PVlnR_I9tZ8hKhOHW6ySpSofhsaShcBQ_JV2-0TePVA",
-            "shortId": "4392c187bbfae564"
+            "serverName": "kz1.sky-vault.top",
+            "publicKey": "_KTsOFhGnC0W28ZqO8_FApozMp7tJ9cVBTLKLAA_OR0",
+            "shortId": "ae64c9b46bff174a"
           },
-          "grpcSettings": {
-            "serviceName": "livestreamcontent",
-            "multiMode": false
-          }
+          "tcpSettings": {}
         }
       },
       {
